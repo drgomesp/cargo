@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/drgomesp/cargo"
+	"github.com/drgomesp/cargo/definition"
 )
 
 const (
@@ -16,19 +17,27 @@ const (
 
 	// ServiceNotRegistered represents the register process failed unexpectedly
 	ServiceNotRegistered = -4
+
+	// DefinitionConflicted represents that the definition was already previously created
+	DefinitionConflicted = -8
+
+	// DefinitionNotFound represents a not found definition for the given id
+	DefinitionNotFound = -16
 )
 
 // Container is a service that handles instances
 type Container struct {
-	aliases  map[string]reflect.Value
-	services map[string]reflect.Value
+	aliases     map[string]reflect.Value
+	definitions map[string]definition.Definition
+	services    map[string]reflect.Value
 }
 
 // NewContainer creates a new container
 func NewContainer() *Container {
 	return &Container{
-		aliases:  make(map[string]reflect.Value),
-		services: make(map[string]reflect.Value),
+		aliases:     make(map[string]reflect.Value),
+		definitions: make(map[string]definition.Definition),
+		services:    make(map[string]reflect.Value),
 	}
 }
 
@@ -49,7 +58,7 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		id = strings.ToLower(id)
 	}
 
-	return nil, cargo.NewError(ServiceNotFound, "Service \"%s\" not found", id)
+	return nil, cargo.NewError(ServiceNotFound, "Service \"%s\" was not found", id)
 }
 
 // Register an instance with an identifier
@@ -69,8 +78,29 @@ func (c *Container) Register(id string, service interface{}) (err error) {
 	if s.Kind() == reflect.Ptr {
 		s = s.Elem()
 		c.services[id] = s
+
 		return
 	}
 
 	return cargo.NewError(ServiceNotRegistered, "Service \"%s\" was not registered", id)
+}
+
+// CreateDefinition to register into the container
+func (c *Container) CreateDefinition(id string, t string, args ...interface{}) (err error) {
+	if _, ok := c.definitions[id]; !ok {
+		c.definitions[id] = definition.NewDefinition(id, t, args)
+		return
+
+	}
+
+	return cargo.NewError(DefinitionConflicted, "Definition \"%s\" already exists", id)
+}
+
+// GetDefinition retrieves a definition
+func (c *Container) GetDefinition(id string) (def definition.Definition, err error) {
+	if def, ok := c.definitions[id]; ok {
+		return def, nil
+	}
+
+	return def, cargo.NewError(DefinitionNotFound, "Definition \"%s\" was not found", id)
 }
