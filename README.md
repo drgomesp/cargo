@@ -1,2 +1,3 @@
-# CarGo
-A Go dependency injection container 
+# carGo
+
+> A Go dependency injection container 
