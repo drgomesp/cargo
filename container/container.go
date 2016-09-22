@@ -7,11 +7,16 @@ import (
 	"github.com/drgomesp/cargo"
 )
 
-// Interface defines the interface of a container
-type Interface interface {
-	Get(id string) (singleton interface{}, err error)
-	Set(id, service interface{}) (ok bool)
-}
+const (
+	// ServiceNotFound represents a not found service for the given id
+	ServiceNotFound = -1
+
+	// ServiceInvalid represents an invalid interface value was provided
+	ServiceInvalid = -2
+
+	// ServiceNotRegistered represents the register process failed unexpectedly
+	ServiceNotRegistered = -4
+)
 
 // Container is a service that handles instances
 type Container struct {
@@ -44,13 +49,13 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		id = strings.ToLower(id)
 	}
 
-	return nil, cargo.NewError(-1, "Service \"%s\" not found", id)
+	return nil, cargo.NewError(ServiceNotFound, "Service \"%s\" not found", id)
 }
 
-// Set an instance with an identifier
-func (c *Container) Set(id string, service interface{}) (err error) {
+// Register an instance with an identifier
+func (c *Container) Register(id string, service interface{}) (err error) {
 	if service == nil {
-		return cargo.Error{}
+		return cargo.NewError(ServiceInvalid, "Service \"%s\" must not be nil", id)
 	}
 
 	id = strings.ToLower(id)
@@ -63,8 +68,9 @@ func (c *Container) Set(id string, service interface{}) (err error) {
 
 	if s.Kind() == reflect.Ptr {
 		s = s.Elem()
+		c.services[id] = s
+		return
 	}
 
-	c.services[id] = s
-	return nil
+	return cargo.NewError(ServiceNotRegistered, "Service \"%s\" was not registered", id)
 }
