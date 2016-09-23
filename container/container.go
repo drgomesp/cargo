@@ -17,12 +17,6 @@ const (
 
 	// ServiceNotRegistered represents the register process failed unexpectedly
 	ServiceNotRegistered = -4
-
-	// DefinitionConflicted represents that the definition was already previously created
-	DefinitionConflicted = -8
-
-	// DefinitionNotFound represents a not found definition for the given id
-	DefinitionNotFound = -16
 )
 
 // Container is a service that handles instances
@@ -48,11 +42,11 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 	   attempt to retrieve the service is made without ToLower() unless necessary */
 	for i := 0; i < 2; i++ {
 		if service, ok := c.aliases[id]; ok {
-			return service.Interface(), nil
+			return service.Elem(), nil
 		}
 
 		if service, ok := c.services[id]; ok {
-			return service.Interface(), nil
+			return service.Elem(), nil
 		}
 
 		id = strings.ToLower(id)
@@ -61,8 +55,8 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 	return nil, cargo.NewError(ServiceNotFound, "Service \"%s\" was not found", id)
 }
 
-// Register an instance with an identifier
-func (c *Container) Register(id string, service interface{}) (err error) {
+// Set an instance with an identifier
+func (c *Container) Set(id string, service interface{}) (err error) {
 	if service == nil {
 		return cargo.NewError(ServiceInvalid, "Service \"%s\" must not be nil", id)
 	}
@@ -76,24 +70,13 @@ func (c *Container) Register(id string, service interface{}) (err error) {
 	s := reflect.ValueOf(service)
 
 	if s.Kind() == reflect.Ptr {
-		s = s.Elem()
+		c.definitions[id] = definition.NewDefinition(id, service)
 		c.services[id] = s
 
 		return
 	}
 
 	return cargo.NewError(ServiceNotRegistered, "Service \"%s\" was not registered", id)
-}
-
-// CreateDefinition to register into the container
-func (c *Container) CreateDefinition(id string, t string, args ...interface{}) (err error) {
-	if _, ok := c.definitions[id]; !ok {
-		c.definitions[id] = definition.NewDefinition(id, t, args)
-		return
-
-	}
-
-	return cargo.NewError(DefinitionConflicted, "Definition \"%s\" already exists", id)
 }
 
 // GetDefinition retrieves a definition
