@@ -2,6 +2,8 @@
 
 *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
 
+[![Build Status](https://travis-ci.org/drgomesp/cargo.svg?branch=master)](https://travis-ci.org/drgomesp/cargo)
+
 > **cargo** is a library that provides a powerful way of handling objects and 
  their dependencies, by using the *Container*. The container works
  by implementing the [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) 
