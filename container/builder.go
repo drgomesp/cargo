@@ -70,6 +70,24 @@ func (b *Builder) Get(id string) (service interface{}, err error) {
 	return service, cargo.NewError(DefinitionConflicted, "Service \"%s\" was not found", id)
 }
 
+// HasDefinition checks if a definition exists by its identifier
+func (b *Builder) HasDefinition(id string) bool {
+	id = strings.ToLower(id)
+	_, ok := b.definitions[id]
+	return ok
+}
+
+// GetDefinition by its identifier
+func (b *Builder) GetDefinition(id string) (def definition.Definition, err error) {
+	id = strings.ToLower(id)
+
+	if def, ok := b.definitions[id]; !ok {
+		return def, cargo.NewError(DefinitionNotFound, "Definition \"%s\" already exists", id)
+	}
+
+	return def, nil
+}
+
 func (b *Builder) createService(def definition.Definition, id string) (service interface{}, err error) {
 	if _, ok := b.Container.definitions[id]; !ok {
 		return
