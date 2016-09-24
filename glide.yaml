@@ -1,5 +1,4 @@
 package: github.com/drgomesp/cargo
-import: []
 testImport:
 - package: github.com/smartystreets/goconvey
   version: ~1.6.2

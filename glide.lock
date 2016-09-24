@@ -1,6 +1,8 @@
-hash: 4d2f5d83c9d56aab3cb4a2a84012a3c1755c2711520dbb821e39c2f0989005e5
-updated: 2016-09-24T13:09:38.763960709+04:00
-imports: []
+hash: b648f034672e8b6a0b45b036aa5ecd65e74ae0eae3730e7a49b71a13705755e1
+updated: 2016-09-24T15:52:47.476416614+04:00
+imports:
+- name: github.com/spf13/cobra
+  version: 9c28e4bbd74e5c3ed7aacbc552b2cab7cfdfe744
 testImports:
 - name: github.com/gopherjs/gopherjs
   version: 7600e3d439bd24b1a637bb6b67e9936c7d8736b3

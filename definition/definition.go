@@ -1,9 +1,6 @@
 package definition
 
-import (
-	"fmt"
-	"reflect"
-)
+import "reflect"
 
 // Definition represents a service definition
 type Definition struct {
@@ -13,24 +10,19 @@ type Definition struct {
 }
 
 // NewDefinition creates a new definition
-func NewDefinition(id string, fn interface{}) Definition {
+func NewDefinition(reference interface{}) Definition {
 	var v reflect.Value
 	var t reflect.Type
 
-	t = reflect.TypeOf(fn)
-	v = reflect.ValueOf(fn)
+	v = reflect.ValueOf(reference)
+	t = reflect.TypeOf(reference)
 
-	switch v.Kind() {
-	case reflect.Ptr:
-		v = v.Elem()
-	case reflect.Func:
-		fmt.Printf("%s => reflect.Func (%s) \n\n", id, t)
-
+	if v.Kind() == reflect.Func {
+		t = reflect.TypeOf(v.Call(nil)[0].Interface())
 	}
 
 	return Definition{
 		Arguments: make([]interface{}, 0),
-		ID:        id,
 		Type:      t,
 	}
 }
