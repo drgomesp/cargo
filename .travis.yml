@@ -1,6 +1,7 @@
 language: go
-
 go:
-    - 1.7
-
-before_script: "go test -v ./... -cover"
+- 1.7
+before_script: go test -v ./... -cover
+env:
+  global:
+    secure: pObt6fTg6sfUst6hmU+voILI2U67AKp6w2/r7gfjV0v2eWYHDVgWB9PlZtbKl2XbBMp6x8A4ZvmW9mhkhqka421DIx2Ij8G+R+1sLtDvvZNR25vobfx/C0LOOwKVlXgq1B78o+VdgqUgJ7r7e2wihp6x5hTtA4WwPBThdkxT19tdHfjSZ9IR6+O/EqOnNcKXZw9FEV60q/u/xHKoi03l6wJMThBHPdwbxOf/6xi89SP2XLmTwxHs1iU5KM/UX1/d3si5u3UJOHSkA8u/VYXsB8vJnLq1XQYPIZb3iR1BsUbrsXGaAJ5Zy8nEVRnoUAPnpfzM18GpD167tr70sdmVJIMofs+mONmO4/DQ+RMDD3TXCqOoAKH9Fx8TJub7CHPhiwKcZ/3HpsWMG8Hv7nYQ8EHIHSDpdISPaOYBdba/mRdCreWYc0qsg6HYaQi1wHVuVSwYQOceD2AgtlVCFMZf2Cv/6Sp02lqDejeiitkMb7EpCMcXwwVUesrjk9R0TeKGQV6y2X6Azcarr/dmazzYZw4glQTWdYgBNHRgcih+gp+Ui9ATLX0s6425t3EeU67SctE8mwPEApaf0TfUtlSMXRG0b6Ek5PhZPyXKlF7kjqazmpLgsrS4+RR8V0NvsQu6gnwE6xRE2cguA735HLpi2MglWsuzUh5W0i4aqTNxbv0=
