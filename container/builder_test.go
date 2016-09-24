@@ -1,11 +1,9 @@
 package container
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/stretchr/testify/assert"
 )
 
 type Foo struct{}
@@ -16,100 +14,153 @@ func NewBar() *Bar {
 }
 
 func TestRegisterWithInstance(t *testing.T) {
-	Convey("Given some instance of an arbitrary type", t, func() {
-		expected := new(Foo)
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-		Convey("When the instance is registered into the container builder ", func() {
-			builder := NewBuilder()
-			b, err := builder.Register("foo", expected)
+		Convey("Given an instance of an arbitrary type", func() {
+			expected := new(Foo)
 
-			Convey("Then the register method should return the builder", func() {
-				So(err, ShouldBeEmpty)
-			})
+			Convey("When the instance is registered into the container builder ", func() {
+				b, err := builder.Register("foo", expected)
 
-			Convey("And the register method should return an empty error", func() {
-				So(b, ShouldEqual, b)
+				Convey("Then the register method should return the builder", func() {
+					So(err, ShouldBeEmpty)
+				})
+
+				Convey("And the register method should return an empty error", func() {
+					So(b, ShouldEqual, b)
+				})
 			})
 		})
 	})
 }
 
 func TestRegisterWithConstructorFunction(t *testing.T) {
-	Convey("Given some constructor function that returns an arbitrary type", t, func() {
-		Convey("When the function is registered into the container builder ", func() {
-			builder := NewBuilder()
-			b, err := builder.Register("foo", NewBar)
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-			Convey("Then the register method should return the builder", func() {
-				So(err, ShouldBeEmpty)
-			})
+		Convey("Given a constructor function that returns an arbitrary type", func() {
+			Convey("When the function is registered into the container builder ", func() {
+				b, err := builder.Register("foo", NewBar)
 
-			Convey("And the register method should return an empty error", func() {
-				So(b, ShouldEqual, b)
+				Convey("Then the register method should return the builder", func() {
+					So(err, ShouldBeEmpty)
+				})
+
+				Convey("And the register method should return an empty error", func() {
+					So(b, ShouldEqual, b)
+				})
 			})
 		})
 	})
 }
 
 func TestRegisterHasDefinition(t *testing.T) {
-	builder := NewBuilder()
-	builder.Register("foo", new(Foo))
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-	assert.True(t, builder.HasDefinition("foo"))
-	assert.False(t, builder.HasDefinition("bar"))
+		Convey("Given an arbitrary type", func() {
+			type Foo struct{}
+
+			Convey("When the type is registered into the container builder", func() {
+				builder.Register("foo", &Foo{})
+
+				Convey("Then the container should have a definition for that type", func() {
+					So(builder.HasDefinition("foo"), ShouldBeTrue)
+				})
+			})
+		})
+	})
 }
 
 func TestRegisterGetDefinitionRegisteredWithInstance(t *testing.T) {
-	builder := NewBuilder()
-	actual := new(Foo)
-	builder.Register("foo", actual)
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-	foo, err := builder.Get("foo")
+		Convey("Given an arbitrary type", func() {
+			type Foo struct{}
 
-	if err != nil {
-		t.Log(fmt.Sprintf("%s", err))
-		t.Fail()
-	}
+			Convey("When the type is registered into the container builder", func() {
+				builder.Register("foo", new(Foo))
 
-	var expected *Foo
-	expected = foo.(*Foo)
+				Convey("Then the container should have a definition for that type", func() {
+					So(builder.HasDefinition("foo"), ShouldBeTrue)
+				})
 
-	assert.Nil(t, expected)
-	assert.IsType(t, expected, actual)
-	assert.ObjectsAreEqual(expected, actual)
+				Convey("And when requesting the container for that definition", func() {
+					foo, err := builder.Get("foo")
+
+					Convey("It should return a service for it", func() {
+						So(err, ShouldBeNil)
+						So(foo, ShouldHaveSameTypeAs, &Foo{})
+					})
+				})
+			})
+		})
+	})
 }
 
 func TestRegisterGetDefinitionRegisteredWithConstructorFunction(t *testing.T) {
-	builder := NewBuilder()
-	builder.Register("bar", NewBar)
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-	bar, err := builder.Get("bar")
+		Convey("Given an arbitrary type that has a constructor function", func() {
+			Convey("When the function is registered into the container builder", func() {
+				builder.Register("bar", &Bar{})
 
-	if err != nil {
-		t.Log(fmt.Sprintf("%s", err))
-		t.Fail()
-	}
+				Convey("Then the container should have a definition for that type", func() {
+					So(builder.HasDefinition("bar"), ShouldBeTrue)
+				})
 
-	var expected *Bar
-	expected = bar.(*Bar)
+				Convey("And when requesting the container for that definition", func() {
+					foo, err := builder.Get("bar")
 
-	assert.Nil(t, expected)
-	assert.IsType(t, expected, bar)
-	assert.ObjectsAreEqual(expected, bar)
+					Convey("It should return a service for it", func() {
+						So(err, ShouldBeNil)
+						So(foo, ShouldHaveSameTypeAs, &Bar{})
+					})
+				})
+			})
+		})
+	})
 }
 
 func TestRegisterReturnsErrorWhenDefinitionAlreadyExist(t *testing.T) {
-	builder := NewBuilder()
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-	builder.Register("bar", NewBar)
-	_, err := builder.Register("bar", NewBar)
+		Convey("Given an arbitrary type", func() {
+			type Foo struct{}
 
-	assert.Error(t, err)
+			Convey("When the type is registered into the container builder", func() {
+				builder.Register("foo", &Foo{})
+
+				Convey("Then the container should have a definition for that type", func() {
+					So(builder.HasDefinition("foo"), ShouldBeTrue)
+				})
+
+				Convey("And when trying to register the definition again", func() {
+					_, err := builder.Register("foo", &Foo{})
+
+					Convey("Then the container should return an error", func() {
+						So(err, ShouldNotBeNil)
+					})
+				})
+			})
+		})
+	})
 }
 
 func TestRegisterReturnsErrorWhenServiceIsNotFound(t *testing.T) {
-	builder := NewBuilder()
-	_, err := builder.Get("service_that_does_not_exist")
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
 
-	assert.Error(t, err)
+		Convey("When a service that does not exist is requested", func() {
+			_, err := builder.Get("service_that_does_not_exist")
+
+			Convey("Then the container should return an error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
 }
