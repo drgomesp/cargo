@@ -1,4 +1,4 @@
-# drgomesp/carGo
+# drgomesp/cargo
 
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
 
