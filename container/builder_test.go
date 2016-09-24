@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,20 +16,39 @@ func NewBar() *Bar {
 }
 
 func TestRegisterWithInstance(t *testing.T) {
-	builder := NewBuilder()
-	expected := new(Foo)
-	b, err := builder.Register("foo", expected)
+	Convey("Given some instance of an arbitrary type", t, func() {
+		expected := new(Foo)
 
-	assert.Nil(t, err)
-	assert.ObjectsAreEqual(builder, b)
+		Convey("When the instance is registered into the container builder ", func() {
+			builder := NewBuilder()
+			b, err := builder.Register("foo", expected)
+
+			Convey("Then the register method should return the builder", func() {
+				So(err, ShouldBeEmpty)
+			})
+
+			Convey("And the register method should return an empty error", func() {
+				So(b, ShouldEqual, b)
+			})
+		})
+	})
 }
 
 func TestRegisterWithConstructorFunction(t *testing.T) {
-	builder := NewBuilder()
-	b, err := builder.Register("bar", NewBar)
+	Convey("Given some constructor function that returns an arbitrary type", t, func() {
+		Convey("When the function is registered into the container builder ", func() {
+			builder := NewBuilder()
+			b, err := builder.Register("foo", NewBar)
 
-	assert.Nil(t, err)
-	assert.ObjectsAreEqual(builder, b)
+			Convey("Then the register method should return the builder", func() {
+				So(err, ShouldBeEmpty)
+			})
+
+			Convey("And the register method should return an empty error", func() {
+				So(b, ShouldEqual, b)
+			})
+		})
+	})
 }
 
 func TestRegisterHasDefinition(t *testing.T) {
