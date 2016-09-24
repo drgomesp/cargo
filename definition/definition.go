@@ -27,7 +27,7 @@ func NewDefinition(reference interface{}) Definition {
 	}
 }
 
-// AddArgument to the definition
-func (d *Definition) AddArgument(arg interface{}) {
-	d.Arguments = append(d.Arguments, arg)
+// AddArguments to the definition
+func (d *Definition) AddArguments(arg ...interface{}) {
+	d.Arguments = append(d.Arguments, arg...)
 }
