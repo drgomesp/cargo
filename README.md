@@ -34,14 +34,14 @@ $ go get github.com/drgomesp/cargo
 
 #### Builder
 
-The `container.Builder` is a wrapper for the `container.Container` that provides an API to describe services
+The `container.Container` is what provides an API to register and retrieve services
 
 Defining services is very simple:
 
 ```go
 type Foo struct {} 
 
-container := container.NewBuilder()
+container := container.NewContainer()
 container.Register("foo", definition.NewDefinition(&Foo{}))
 ```
 
