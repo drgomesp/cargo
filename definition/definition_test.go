@@ -3,7 +3,6 @@ package definition
 import (
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -66,7 +65,6 @@ func TestAddArguments(t *testing.T) {
 
 			Convey("Then definition should be created with those arguments", func() {
 				So(def, ShouldNotBeNil)
-				spew.Dump(def)
 				So(def.Arguments, ShouldHaveLength, 3)
 				So(def.Arguments, ShouldContain, bar)
 				So(def.Arguments, ShouldContain, 1)
