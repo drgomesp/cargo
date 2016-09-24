@@ -3,10 +3,10 @@ package container
 import (
 	"testing"
 
+	"github.com/drgomesp/cargo/definition"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-type Foo struct{}
 type Bar struct{}
 
 func NewBar() *Bar {
@@ -18,7 +18,8 @@ func TestRegisterWithInstance(t *testing.T) {
 		builder := NewBuilder()
 
 		Convey("Given an instance of an arbitrary type", func() {
-			expected := new(Foo)
+			type Foo struct{}
+			expected := &Foo{}
 
 			Convey("When the instance is registered into the container builder ", func() {
 				b, err := builder.Register("foo", expected)
@@ -55,7 +56,7 @@ func TestRegisterWithConstructorFunction(t *testing.T) {
 	})
 }
 
-func TestRegisterHasDefinition(t *testing.T) {
+func TestHasDefinition(t *testing.T) {
 	Convey("Given a container builder is available", t, func() {
 		builder := NewBuilder()
 
@@ -68,12 +69,31 @@ func TestRegisterHasDefinition(t *testing.T) {
 				Convey("Then the container should have a definition for that type", func() {
 					So(builder.HasDefinition("foo"), ShouldBeTrue)
 				})
+
+				Convey("And the container should not have a definition for a type that was not previously registered", func() {
+					So(builder.HasDefinition("bar"), ShouldBeFalse)
+				})
 			})
 		})
 	})
 }
 
-func TestRegisterGetDefinitionRegisteredWithInstance(t *testing.T) {
+func TestGetDefinitionReturnsErrorWhenRequestingNonExistingDefinition(t *testing.T) {
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
+
+		Convey("When requesting for a non existing definition", func() {
+			builder.GetDefinition("foo")
+
+			Convey("Then the container should have a definition for that type", func() {
+				_, err := builder.GetDefinition("definition_that_does_not_exist")
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetDefinitionRegisteredWithInstance(t *testing.T) {
 	Convey("Given a container builder is available", t, func() {
 		builder := NewBuilder()
 
@@ -88,11 +108,11 @@ func TestRegisterGetDefinitionRegisteredWithInstance(t *testing.T) {
 				})
 
 				Convey("And when requesting the container for that definition", func() {
-					foo, err := builder.Get("foo")
+					foo, err := builder.GetDefinition("foo")
 
 					Convey("It should return a service for it", func() {
 						So(err, ShouldBeNil)
-						So(foo, ShouldHaveSameTypeAs, &Foo{})
+						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
 					})
 				})
 			})
@@ -100,7 +120,7 @@ func TestRegisterGetDefinitionRegisteredWithInstance(t *testing.T) {
 	})
 }
 
-func TestRegisterGetDefinitionRegisteredWithConstructorFunction(t *testing.T) {
+func TestGetDefinitionRegisteredWithConstructorFunction(t *testing.T) {
 	Convey("Given a container builder is available", t, func() {
 		builder := NewBuilder()
 
@@ -113,11 +133,36 @@ func TestRegisterGetDefinitionRegisteredWithConstructorFunction(t *testing.T) {
 				})
 
 				Convey("And when requesting the container for that definition", func() {
-					foo, err := builder.Get("bar")
+					foo, err := builder.GetDefinition("bar")
 
 					Convey("It should return a service for it", func() {
 						So(err, ShouldBeNil)
-						So(foo, ShouldHaveSameTypeAs, &Bar{})
+						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
+					})
+				})
+			})
+		})
+	})
+}
+
+func TestGetDefinitionRegisteredWithLowerCaseIdentifierUsingUpperCaseIdentifier(t *testing.T) {
+	Convey("Given a container builder is available", t, func() {
+		builder := NewBuilder()
+
+		Convey("Given an arbitrary type that has a constructor function", func() {
+			Convey("When the function is registered into the container builder", func() {
+				builder.Register("bar", &Bar{})
+
+				Convey("Then the container should have a definition for that type", func() {
+					So(builder.HasDefinition("bar"), ShouldBeTrue)
+				})
+
+				Convey("And when requesting the container for that definition using upper case letters", func() {
+					foo, err := builder.GetDefinition("BAR")
+
+					Convey("It should return a service for it", func() {
+						So(err, ShouldBeNil)
+						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
 					})
 				})
 			})
