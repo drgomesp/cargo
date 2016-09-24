@@ -41,8 +41,8 @@ Defining services is very simple:
 ```go
 type Foo struct {} 
 
-builder := container.NewBuilder()
-builder.Register("foo", &Foo{})
+container := container.NewBuilder()
+container.Register("foo", definition.NewDefinition(&Foo{}))
 ```
 
 If you prefer not to use the composite literal expression, you can define a constructor function and use it as a literal:
@@ -53,20 +53,19 @@ func NewFoo() *Foo {
     return &Foo{}
 }
 
-builder := container.NewBuilder()
-builder.Register("foo", NewFoo)
+container.Register("foo", definition.NewDefinition(NewFoo))
 ```
 
 To check if a service definition exists, simply do:
 
 ```go
-builder.HasDefinition("foo")
+container.HasDefinition("foo")
 ```
 
 And to get a definition back to work with:
 
 ```go
-if def, err := builder.GetDefinition("foo"); err != nil {
+if def, err := container.GetDefinition("foo"); err != nil {
     fmt.Println(def.ID)
 }
 ```
