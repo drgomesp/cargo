@@ -57,3 +57,17 @@ builder := container.NewBuilder()
 builder.Register("foo", NewFoo)
 ```
 
+To check if a service definition exists, simply do:
+
+```go
+builder.HasDefinition("foo")
+```
+
+And to get a definition back to work with:
+
+```go
+if def, err := builder.GetDefinition("foo"); err != nil {
+    fmt.Println(def.ID)
+}
+```
+
