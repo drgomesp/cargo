@@ -1,210 +1,141 @@
 package container
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/drgomesp/cargo/definition"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-type Bar struct{}
-
-func NewBar() *Bar {
-	return &Bar{}
-}
-
-func TestRegisterWithInstance(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
+func TestNewContainer(t *testing.T) {
+	Convey("Given a new container is created", t, func() {
 		container := NewContainer()
 
-		Convey("Given a service definition of an arbitrary type", func() {
-			type Foo struct{}
-			def := definition.NewDefinition(&Foo{})
+		Convey("Then a new container instance should be returned", func() {
+			So(container, ShouldHaveSameTypeAs, &Container{})
+		})
+	})
+}
 
-			Convey("When the instance is registered into the container builder ", func() {
-				b, err := container.Register("foo", def)
+func TestRegisterAlreadyExistingDefinition(t *testing.T) {
+	Convey("Given a constructor function for an arbitraty type", t, func() {
+		type Foo struct{}
+		NewFoo := func() *Foo {
+			return &Foo{}
+		}
 
-				Convey("Then the register method should return the builder", func() {
-					So(err, ShouldBeEmpty)
-				})
+		Convey("And a service container instance", func() {
+			container := NewContainer()
 
-				Convey("And the register method should return an empty error", func() {
-					So(b, ShouldEqual, b)
+			Convey("When the function is used to register a service on the container", func() {
+				container.Register("foo", NewFoo)
+
+				Convey("And the function is used to register the service again", func() {
+					_, err := container.Register("foo", NewFoo)
+
+					Convey("Then it should return an error", func() {
+						So(err, ShouldNotBeNil)
+						So(err.Error(), ShouldEqual, "Definition for \"foo\" already exists")
+					})
 				})
 			})
+
 		})
 	})
 }
 
 func TestRegisterWithConstructorFunction(t *testing.T) {
-	Convey("Given a container is available", t, func() {
-		container := NewContainer()
+	Convey("Given a constructor function for an arbitraty type", t, func() {
+		type Foo struct{}
+		NewFoo := func() *Foo {
+			return &Foo{}
+		}
 
-		Convey("Given a constructor function that returns an arbitrary type", func() {
-			Convey("When the function is registered into the container ", func() {
-				b, err := container.Register("foo", definition.NewDefinition(NewBar))
+		Convey("And a service container instance", func() {
+			container := NewContainer()
 
-				Convey("Then the register method should return the container", func() {
-					So(err, ShouldBeEmpty)
+			Convey("When the function is used to register a service on the container", func() {
+				def, err := container.Register("foo", NewFoo)
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
 				})
 
-				Convey("And the register method should return an empty error", func() {
-					So(b, ShouldEqual, b)
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 0)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
 				})
 			})
+
 		})
 	})
 }
 
-func TestHasDefinition(t *testing.T) {
-	Convey("Given a container is available", t, func() {
+func TestRegisterWithInstance(t *testing.T) {
+	Convey("Given an instance of an arbitraty type", t, func() {
+		type Foo struct{}
+		foo := &Foo{}
+
+		Convey("And a service container instance", func() {
+			container := NewContainer()
+
+			Convey("When the instance is used to register a service on the container", func() {
+				def, err := container.Register("foo", foo)
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 0)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				})
+			})
+
+		})
+	})
+}
+
+func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
 		container := NewContainer()
 
-		Convey("Given an arbitrary type", func() {
+		Convey("And an arbitrary type with a constructor function", func() {
 			type Foo struct{}
+			NewFoo := func() *Foo {
+				return &Foo{}
+			}
 
-			Convey("When the type is registered into the container builder", func() {
-				container.Register("foo", definition.NewDefinition(&Foo{}))
+			Convey("And service of that type registered as \"foo\" in the container", func() {
+				def, err := container.Register("foo", NewFoo)
 
-				Convey("Then the container should have a definition for that type", func() {
-					So(container.HasDefinition("foo"), ShouldBeTrue)
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
 				})
 
-				Convey("And the container should not have a definition for a type that was not previously registered", func() {
-					So(container.HasDefinition("bar"), ShouldBeFalse)
-				})
-			})
-		})
-	})
-}
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 0)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
 
-func TestGetDefinitionReturnsErrorWhenRequestingNonExistingDefinition(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
+					Convey("And when requesting for that service named \"foo\" from the container", func() {
+						foo, err := container.Get("foo")
 
-		Convey("When requesting for a non existing definition", func() {
-			container.GetDefinition("foo")
+						Convey("Then it should return an empty error", func() {
+							So(err, ShouldBeNil)
+						})
 
-			Convey("Then the container should have a definition for that type", func() {
-				_, err := container.GetDefinition("definition_that_does_not_exist")
-				So(err, ShouldNotBeNil)
-			})
-		})
-	})
-}
-
-func TestGetDefinitionRegisteredWithInstance(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
-
-		Convey("Given an arbitrary type", func() {
-			type Foo struct{}
-
-			Convey("When the type is registered into the container builder", func() {
-				container.Register("foo", definition.NewDefinition(new(Foo)))
-
-				Convey("Then the container should have a definition for that type", func() {
-					So(container.HasDefinition("foo"), ShouldBeTrue)
-				})
-
-				Convey("And when requesting the container for that definition", func() {
-					foo, err := container.GetDefinition("foo")
-
-					Convey("It should return a service for it", func() {
-						So(err, ShouldBeNil)
-						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
+						Convey("And it should return an instance of that service", func() {
+							So(*foo, ShouldHaveSameTypeAs, NewFoo())
+						})
 					})
 				})
-			})
-		})
-	})
-}
-
-func TestGetDefinitionRegisteredWithConstructorFunction(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
-
-		Convey("Given an arbitrary type that has a constructor function", func() {
-			Convey("When the function is registered into the container builder", func() {
-				container.Register("bar", definition.NewDefinition(&Bar{}))
-
-				Convey("Then the container should have a definition for that type", func() {
-					So(container.HasDefinition("bar"), ShouldBeTrue)
-				})
-
-				Convey("And when requesting the container for that definition", func() {
-					foo, err := container.GetDefinition("bar")
-
-					Convey("It should return a service for it", func() {
-						So(err, ShouldBeNil)
-						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
-					})
-				})
-			})
-		})
-	})
-}
-
-func TestGetDefinitionRegisteredWithLowerCaseIdentifierUsingUpperCaseIdentifier(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
-
-		Convey("Given an arbitrary type that has a constructor function", func() {
-			Convey("When the function is registered into the container builder", func() {
-				container.Register("bar", definition.NewDefinition(&Bar{}))
-
-				Convey("Then the container should have a definition for that type", func() {
-					So(container.HasDefinition("bar"), ShouldBeTrue)
-				})
-
-				Convey("And when requesting the container for that definition using upper case letters", func() {
-					foo, err := container.GetDefinition("BAR")
-
-					Convey("It should return a service for it", func() {
-						So(err, ShouldBeNil)
-						So(foo, ShouldHaveSameTypeAs, definition.Definition{})
-					})
-				})
-			})
-		})
-	})
-}
-
-func TestRegisterReturnsErrorWhenDefinitionAlreadyExist(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
-
-		Convey("Given an arbitrary type", func() {
-			type Foo struct{}
-
-			Convey("When the type is registered into the container builder", func() {
-				container.Register("foo", definition.NewDefinition(new(Foo)))
-
-				Convey("Then the container should have a definition for that type", func() {
-					So(container.HasDefinition("foo"), ShouldBeTrue)
-				})
-
-				Convey("And when trying to register the definition again", func() {
-					_, err := container.Register("foo", definition.NewDefinition(new(Foo)))
-
-					Convey("Then the container should return an error", func() {
-						So(err, ShouldNotBeNil)
-					})
-				})
-			})
-		})
-	})
-}
-
-func TestRegisterReturnsErrorWhenServiceIsNotFound(t *testing.T) {
-	Convey("Given a container builder is available", t, func() {
-		container := NewContainer()
-
-		Convey("When a service that does not exist is requested", func() {
-			_, err := container.Get("service_that_does_not_exist")
-
-			Convey("Then the container should return an error", func() {
-				So(err, ShouldNotBeNil)
 			})
 		})
 	})

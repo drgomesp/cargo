@@ -37,6 +37,7 @@ $ go get github.com/drgomesp/cargo
 
 #### Components
 
+---
 - **[`configuration.Configuration`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
   > Configuration schema used for defining services
 - **[`configuration.Builder`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
