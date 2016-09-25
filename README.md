@@ -14,7 +14,8 @@ ___
 1. [Introduction](#introduction)
 2. [Installation](#installation)
 3. [How it Works](#how-it-works)
-  1. [Builder](#builder)
+  1. [Components](#components) 
+  2. [Container](#container)
 
 ### Introduction
 
@@ -30,9 +31,49 @@ ___
 $ go get github.com/drgomesp/cargo
 ```
 
+---
+
 ### How it Works
 
-#### Builder
+#### Components
+
+- **[`configuration.Configuration`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
+  > Configuration schema used for defining services
+- **[`configuration.Builder`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
+  > Configuration builder
+- **[`configuration.Interface`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
+  > The basic API for configurations
+---
+- **[`container.Container`](https://godoc.org/github.com/drgomesp/cargo/container)**
+  > The actual Dependency Injection Container
+- **[`container.Interface`](https://godoc.org/github.com/drgomesp/cargo/container)**
+  > The basic API for the Dependency Injection Container 
+---
+- **[`definition.Alias`](https://godoc.org/github.com/drgomesp/cargo/definition)**
+  > Alias for a service
+- **[`definition.Definition`](https://godoc.org/github.com/drgomesp/cargo/definition)**
+  > Definition of a service through the description of its details
+- **[`definition.Interface`](https://godoc.org/github.com/drgomesp/cargo/definition)**
+  > The basic API for definitions  
+- **[`definition.Parameter`](https://godoc.org/github.com/drgomesp/cargo/definition)**
+  > Service parameter description
+- **[`definition.Reference`](https://godoc.org/github.com/drgomesp/cargo/definition)**
+  > Reference to a service
+---
+- **[`type.Builder`](https://godoc.org/github.com/drgomesp/cargo/type)**
+  > Type builder
+- **[`type.Interface`](https://godoc.org/github.com/drgomesp/cargo/type)**
+  > Basic API for types
+- **[`type.Type`](https://godoc.org/github.com/drgomesp/cargo/type)**
+  > Type of service or parameter
+---
+- **[`proxy.Interface`](https://godoc.org/github.com/drgomesp/cargo/proxy)**
+  > Proxy of a service or parameter
+- **[`proxy.Builder`](https://godoc.org/github.com/drgomesp/cargo/configuration)**
+  > Proxy builder
+---
+
+#### Container
 
 The `container.Container` is what provides an API to register and retrieve services
 
