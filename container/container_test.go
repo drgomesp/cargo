@@ -132,8 +132,39 @@ func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
 						})
 
 						Convey("And it should return an instance of that service", func() {
-							So(*foo, ShouldHaveSameTypeAs, NewFoo())
+							So(foo, ShouldHaveSameTypeAs, NewFoo())
 						})
+					})
+				})
+			})
+		})
+	})
+}
+
+func TestGetServiceSetWithInstance(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("And an instance of an arbitrary type", func() {
+			type Foo struct{}
+			foo := &Foo{}
+
+			Convey("When that instance is registered as a service \"foo\" in the container", func() {
+				err := container.Set("foo", foo)
+
+				Convey("Then the container should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And when requesting for that service named \"foo\" from the container", func() {
+					ret, err := container.Get("foo")
+
+					Convey("Then it should return an empty error", func() {
+						So(err, ShouldBeNil)
+					})
+
+					Convey("And it should return a pointer to the same service", func() {
+						So(ret, ShouldPointTo, foo)
 					})
 				})
 			})

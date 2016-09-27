@@ -2,7 +2,6 @@ package container
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/drgomesp/cargo"
 	"github.com/drgomesp/cargo/definition"
@@ -11,13 +10,14 @@ import (
 // Container for dependency injection
 type Container struct {
 	definitions map[string]*definition.Definition
-	services    map[string]*interface{}
+	services    map[string]interface{}
 }
 
 // NewContainer instance
 func NewContainer() *Container {
 	return &Container{
 		definitions: make(map[string]*definition.Definition, 0),
+		services:    make(map[string]interface{}, 0),
 	}
 }
 
@@ -34,8 +34,24 @@ func (c *Container) Register(id string, arg interface{}) (def *definition.Defini
 	return
 }
 
+// Set a new service
+func (c *Container) Set(id string, arg interface{}) (err error) {
+	if _, ok := c.definitions[id]; ok {
+		err = cargo.NewError(fmt.Sprintf("Definition for \"%s\" already exists", id))
+		return
+	}
+
+	if c.definitions[id], err = definition.NewDefinition(arg); err != nil {
+		err = cargo.NewError(fmt.Sprintf("Could not create a definition for \"%s\"", id))
+	}
+
+	c.services[id] = arg
+
+	return
+}
+
 // Get a service
-func (c *Container) Get(id string) (service *interface{}, err error) {
+func (c *Container) Get(id string) (service interface{}, err error) {
 	if s, ok := c.services[id]; ok {
 		service = s
 		return
@@ -50,12 +66,11 @@ func (c *Container) Get(id string) (service *interface{}, err error) {
 	return
 }
 
-func createServiceFromDefinition(def *definition.Definition) (service *interface{}, err error) {
-	if def.Constructor.Kind() == reflect.Func {
+func createServiceFromDefinition(def *definition.Definition) (service interface{}, err error) {
+	if def.Constructor.IsValid() {
 		ret := def.Constructor.Call(nil)[0]
 		ptr := ret.Interface()
-		service = &ptr
-		return service, nil
+		service = ptr
 	}
 
 	return

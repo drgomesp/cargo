@@ -51,7 +51,7 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 	return
 }
 
-func createFromPointer(ptr *interface{}, args ...interface{}) (def *Definition, err error) {
+func createFromPointer(ptr interface{}, args ...interface{}) (def *Definition, err error) {
 	def = &Definition{
 		Arguments: make([]Reference, 0),
 		Type:      reflect.TypeOf(ptr),
