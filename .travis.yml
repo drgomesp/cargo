@@ -1,9 +1,28 @@
 language: go
-go:
-- 1.7
-before_script: 
-- go test ./container -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
-- go test ./definition -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
+sudo: false
+
 env:
   global:
-    secure: bR0b1TskLl0q8Khgu6HxSZLNvr5UGFlhcpJD742MssLqLbofZycVnPYW+NMxvRHygVHSv2XBhdAZv1kgo6Kc8Z1aTCTtNE35EqrVECsS9ZrX70WCwS4COXjmLhtSkU7C4SEVF3BmCcggPVLJDEJ7RRa/7wUATbfpDvrmh7eVAgcMXzcqmiDWbr41Wz4ZCOWXkTnFdtgwlcBX0PURLLhY5yszb8Lt7PLuWBLaVrFTwjqbMnRtHhFE445F1N6GS+f6pIxtHswX4vY4JES36usXgRf/+kvnFDJG5312Fp8FbxSIdl0QahJ2+WCmXWSDudvsqZ6imlp8wq5rogyBvDEdW1HuX3ajeuK7D7IiNtqRYYjXcKr1GZAbTyCm//Co3IGvS2O7V9iNrbsAuHiB3uhwrDLTWnjJGDamCVPuLRKgnVpr2GC+gYJBb7Bp5dznmuqdakbf0XijEVnkCIcXnzBPCSnu+0iGLQUqwKDAmyiR+Fd0ihB8gDljmnmaII/jlGfrXb0y9sNJRZx+5kqbUxdea2PgC89bkfKQqbDo08ZgwEX2U1ybXr1dvF5kHICk+kwqkETy/3/GB9NCWDydNn5eB6AnCBOiRWvgvKpLvRHSJuANloLAowkUMzA0xHkXbhlNz9k+2ToV6zhTvgUVtOChC5CNIlz8rB3rKgxlLKEwcxQ=
+  - secure: TwwZCbOWl7d28hjEgnzF93mHat9oGPTN+N+NgP0kdjkBTRtmnbiNylMY0Rhr+GNQpvjBQQchpDmM42doi5TCGOGLHbItbKqT8f6gfg5TgnWo/tFXaMxaBp2ENH/7o2Xmxl6VDhK9MISEEe3SDI9OmOFljMo5Swf0ghfEAOraC6d/oQKnBoXmnwKkTo6d16bh5o83v1y15VeRe1tpb/filphkYlqOpXLosxzQbtyYOTqlf0GuXNsv/CKMcS7Mqb5EKdRdqNavmARk+LGBwePHBCeRqZA+kE6jRN/9Kf5yfW4prKlFp8iM2RF6UyTEFjcT236Y/wbhZUUIVeqqdrvZ6u2i4yoUKL2GGqXn8rHd+CLk5C8ArzzcNODgkBuqdXXRkOC4grkO2UhjpkNKNdvhww8wInI/RZ6SpDK6+1LX4IlTVoxsG6yrfCtQsP+xhqTEh28WEK1otG8mC0LrWp/ZE5jPlLk1ag4A4PnOXjbDfSL6V2BDTk39aiXgo5qdun8PQxWeUMImQ58pZliib/nTVj/xZtX1UTzJ5kxLta5t9bj2fx7g96H2Cjr2BrY2Jnx+fTWLWwMTscEWOb6ynoWCg2DW3XK9cSq+ky63iLvaU6eTLeDoVwdfGkUhNy4VllDM26p8bnGaR7/dP+ZbEKc+M9P40md7tLim2Jn9Qu5rH+c=
+
+go:
+- 1.2
+- 1.3
+- 1.4
+- 1.5
+- 1.6
+- 1.7
+
+install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
+  - go get -v -t ./...
+
+script:
+  - go test -cover -coverpkg github.com/drgomesp/cargo/container -coverprofile container.coverprofile   ./container
+  - go test -cover -coverpkg github.com/drgomesp/cargo/definition -coverprofile definition.coverprofile ./definition
+
+after_script:
+  - gover
+  - goveralls -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
