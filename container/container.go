@@ -2,6 +2,7 @@ package container
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/drgomesp/cargo"
 	"github.com/drgomesp/cargo/definition"
@@ -67,8 +68,21 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 }
 
 func createServiceFromDefinition(def *definition.Definition) (service interface{}, err error) {
+	var ret reflect.Value
+
 	if def.Constructor.IsValid() {
-		ret := def.Constructor.Call(nil)[0]
+		if len(def.Arguments) > 0 {
+			args := make([]reflect.Value, len(def.Arguments))
+
+			for i, arg := range def.Arguments {
+				args[i] = reflect.ValueOf(arg.Value)
+			}
+
+			ret = def.Constructor.Call(args)[0]
+		} else {
+			ret = def.Constructor.Call(nil)[0]
+		}
+
 		ptr := ret.Interface()
 		service = ptr
 	}

@@ -64,19 +64,16 @@ func TestAddArgument(t *testing.T) {
 			})
 
 			Convey("And when an argument is added to it", func() {
-				ref := NewReference("foo")
-				returned, err := def.AddArgument(ref)
+				arg := NewArgument(100)
+				def.AddArgument(arg)
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)
 				})
 
-				Convey("And it should return the definition", func() {
-					So(returned, ShouldEqual, def)
-				})
-
 				Convey("And the definition should contain that argument", func() {
-					So(def.Arguments, ShouldContain, ref)
+					So(def.Arguments, ShouldHaveLength, 1)
+					So(def.Arguments[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
 				})
 			})
 		})

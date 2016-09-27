@@ -4,7 +4,7 @@ import "reflect"
 
 // Definition of a service or an argument
 type Definition struct {
-	Arguments   []Reference
+	Arguments   []Argument
 	MethodCalls []reflect.Value
 	Constructor reflect.Value
 	Type        reflect.Type
@@ -29,9 +29,9 @@ func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err e
 }
 
 // AddArgument to the definition
-func (d *Definition) AddArgument(arg Reference) (def *Definition, err error) {
+func (d *Definition) AddArgument(arg Argument) *Definition {
 	d.Arguments = append(d.Arguments, arg)
-	return d, nil
+	return d
 }
 
 func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error) {
@@ -43,7 +43,7 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 	})
 
 	def = &Definition{
-		Arguments:   make([]Reference, 0),
+		Arguments:   make([]Argument, 0),
 		Constructor: constructor,
 		Type:        reflect.TypeOf(constructor.Interface()).Out(0),
 	}
@@ -53,7 +53,7 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 
 func createFromPointer(ptr interface{}, args ...interface{}) (def *Definition, err error) {
 	def = &Definition{
-		Arguments: make([]Reference, 0),
+		Arguments: make([]Argument, 0),
 		Type:      reflect.TypeOf(ptr),
 	}
 
