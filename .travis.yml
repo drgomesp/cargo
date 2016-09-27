@@ -2,8 +2,8 @@ language: go
 go:
 - 1.7
 before_script: 
-- go test ./container -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
-- go test ./definition -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+- go test ./container -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
+- go test ./definition -v -covermode=count -coverprofile=coverage.out $GOPATH/bin/goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
 env:
   global:
     secure: bR0b1TskLl0q8Khgu6HxSZLNvr5UGFlhcpJD742MssLqLbofZycVnPYW+NMxvRHygVHSv2XBhdAZv1kgo6Kc8Z1aTCTtNE35EqrVECsS9ZrX70WCwS4COXjmLhtSkU7C4SEVF3BmCcggPVLJDEJ7RRa/7wUATbfpDvrmh7eVAgcMXzcqmiDWbr41Wz4ZCOWXkTnFdtgwlcBX0PURLLhY5yszb8Lt7PLuWBLaVrFTwjqbMnRtHhFE445F1N6GS+f6pIxtHswX4vY4JES36usXgRf/+kvnFDJG5312Fp8FbxSIdl0QahJ2+WCmXWSDudvsqZ6imlp8wq5rogyBvDEdW1HuX3ajeuK7D7IiNtqRYYjXcKr1GZAbTyCm//Co3IGvS2O7V9iNrbsAuHiB3uhwrDLTWnjJGDamCVPuLRKgnVpr2GC+gYJBb7Bp5dznmuqdakbf0XijEVnkCIcXnzBPCSnu+0iGLQUqwKDAmyiR+Fd0ihB8gDljmnmaII/jlGfrXb0y9sNJRZx+5kqbUxdea2PgC89bkfKQqbDo08ZgwEX2U1ybXr1dvF5kHICk+kwqkETy/3/GB9NCWDydNn5eB6AnCBOiRWvgvKpLvRHSJuANloLAowkUMzA0xHkXbhlNz9k+2ToV6zhTvgUVtOChC5CNIlz8rB3rKgxlLKEwcxQ=
