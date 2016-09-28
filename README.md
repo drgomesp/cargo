@@ -28,4 +28,4 @@ ___
 $ go get github.com/drgomesp/cargo
 ```
 
-by **[Daniel Ribeiro]**(twitter.com/drgomesp)
+by **[Daniel Ribeiro](twitter.com/drgomesp)**
