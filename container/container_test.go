@@ -96,7 +96,42 @@ func TestRegisterWithInstance(t *testing.T) {
 					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
 				})
 			})
+		})
+	})
+}
 
+func TestSetServiceWithInvalidType(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("When setting a service of invalid type", func() {
+			err := container.Set("foo", 1)
+
+			Convey("Then it should return an error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldEqual, "Could not create definition")
+			})
+		})
+	})
+}
+
+func TestSetServiceWithAlreadyExistingIdentifier(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("And an existing service \"foo\"", func() {
+			type Foo struct{}
+			foo := &Foo{}
+			container.Set("foo", foo)
+
+			Convey("When setting a service \"foo\"", func() {
+				err := container.Set("foo", &Foo{})
+
+				Convey("Then it should return an error", func() {
+					So(err, ShouldNotBeNil)
+					So(err.Error(), ShouldEqual, "Definition for \"foo\" already exists")
+				})
+			})
 		})
 	})
 }
@@ -211,6 +246,45 @@ func TestGetServiceSetWithInstance(t *testing.T) {
 						So(ret, ShouldPointTo, foo)
 					})
 				})
+			})
+		})
+	})
+}
+
+func TestGetServiceWithDifferentCaseCharactersForIdentifier(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("And an existing service \"foo\"", func() {
+			type Foo struct{}
+			foo := &Foo{}
+			container.Set("foo", foo)
+
+			Convey("When requesting for a service \"FOO\"", func() {
+				ret, err := container.Get("FoO")
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And it should a pointer to the same service", func() {
+					So(ret, ShouldPointTo, foo)
+				})
+			})
+		})
+	})
+}
+
+func TestGetNonExistingService(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("When requesting for a non-existing service \"bar\"", func() {
+			_, err := container.Get("bar")
+
+			Convey("Then it should return an error", func() {
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldEqual, "No service \"bar\" was found")
 			})
 		})
 	})

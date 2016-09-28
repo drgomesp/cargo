@@ -3,6 +3,7 @@ package container
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/drgomesp/cargo"
 	"github.com/drgomesp/cargo/definition"
@@ -43,7 +44,7 @@ func (c *Container) Set(id string, arg interface{}) (err error) {
 	}
 
 	if c.definitions[id], err = definition.NewDefinition(arg); err != nil {
-		err = cargo.NewError(fmt.Sprintf("Could not create a definition for \"%s\"", id))
+		err = cargo.NewError("Could not create definition")
 	}
 
 	c.services[id] = arg
@@ -53,17 +54,22 @@ func (c *Container) Set(id string, arg interface{}) (err error) {
 
 // Get a service
 func (c *Container) Get(id string) (service interface{}, err error) {
-	if s, ok := c.services[id]; ok {
-		service = s
-		return
-	}
-
-	if def, ok := c.definitions[id]; ok {
-		if service, err = createServiceFromDefinition(def); err != nil {
-			err = cargo.NewError(fmt.Sprintf("No service \"%s\" was found", id))
+	for i := 0; i < 2; i++ {
+		if s, ok := c.services[id]; ok {
+			service = s
+			return
 		}
+
+		if def, ok := c.definitions[id]; ok {
+			if service, err = createServiceFromDefinition(def); err == nil {
+				return
+			}
+		}
+
+		id = strings.ToLower(id)
 	}
 
+	err = cargo.NewError(fmt.Sprintf("No service \"%s\" was found", id))
 	return
 }
 

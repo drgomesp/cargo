@@ -1,6 +1,10 @@
 package definition
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/drgomesp/cargo"
+)
 
 // Definition of a service or an argument
 type Definition struct {
@@ -16,13 +20,13 @@ func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err e
 	case reflect.Func:
 		if constructor, err := createFromConstructorFunction(reflect.ValueOf(arg)); nil == err {
 			def = constructor
-			break
 		}
-	default:
+	case reflect.Ptr:
 		if constructor, err := createFromPointer(&arg); nil == err {
 			def = constructor
-			break
 		}
+	default:
+		err = cargo.NewError("Could not create definition")
 	}
 
 	return
