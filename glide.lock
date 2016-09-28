@@ -1,11 +1,15 @@
-hash: b648f034672e8b6a0b45b036aa5ecd65e74ae0eae3730e7a49b71a13705755e1
-updated: 2016-09-24T15:52:47.476416614+04:00
+hash: cdf16844a8cedd17c640b15eb3f5ec1fc44ab1028b2345852749ce29ad6e2abf
+updated: 2016-09-27T19:57:50.591851498+04:00
 imports:
-- name: github.com/spf13/cobra
-  version: 9c28e4bbd74e5c3ed7aacbc552b2cab7cfdfe744
+- name: github.com/mattn/goveralls
+  version: 9d621f6940639bf287ecbb6f585a2c26eeba3bbe
+- name: golang.org/x/tools
+  version: c2ef61f450233d3c629ade8eb2083e43fa75c97a
+  subpackages:
+  - cmd/cover
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: 7600e3d439bd24b1a637bb6b67e9936c7d8736b3
+  version: 50101461d59f26b13c876f57aab314ce55387671
   subpackages:
   - js
 - name: github.com/jtolds/gls

@@ -1,74 +1,80 @@
 package definition
 
 import (
+	"reflect"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-type Bar struct{}
+func TestNewWithConstructorFunction(t *testing.T) {
+	Convey("Given a constructor function for an arbitraty type", t, func() {
+		type Foo struct{}
 
-func NewBar() *Bar {
-	return &Bar{}
+		Convey("When that function is used to create a definition", func() {
+			def, err := NewDefinition(func() *Foo {
+				return &Foo{}
+			})
+
+			Convey("Then it should return an empty error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And the definition should represent the correct type", func() {
+				So(def, ShouldHaveSameTypeAs, &Definition{})
+				So(def.Arguments, ShouldHaveLength, 0)
+				So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+				So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+			})
+		})
+	})
 }
 
-func TestNewDefinitionWithInstance(t *testing.T) {
+func TestNewWithInstance(t *testing.T) {
+	Convey("Given an instance of an arbitrary type", t, func() {
+		type Foo struct{}
+		foo := &Foo{}
+
+		Convey("When that instance is used to create a definition", func() {
+			def, err := NewDefinition(foo)
+
+			Convey("Then it should return an empty error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And it should return a definition that represents the correct type", func() {
+				So(def, ShouldHaveSameTypeAs, &Definition{})
+				So(def.Arguments, ShouldHaveLength, 0)
+				So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+				So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+			})
+		})
+	})
+}
+
+func TestAddArgument(t *testing.T) {
 	Convey("Given an arbitrary type", t, func() {
 		type Foo struct{}
 
-		Convey("When creating a definition for that type using a composite literal", func() {
-			def := NewDefinition(&Foo{})
+		Convey("And a definition of that type", func() {
+			def, err := NewDefinition(&Foo{})
 
-			Convey("Then definition should be returned", func() {
-				So(def, ShouldNotBeNil)
+			Convey("Then it should return an empty error", func() {
+				So(err, ShouldBeNil)
 			})
-		})
 
-		Convey("And when creating a definition for that type using the new keyword", func() {
-			def := NewDefinition(new(Foo))
+			Convey("And when an argument is added to it", func() {
+				arg := NewArgument(100)
+				def.AddArgument(arg)
 
-			Convey("Then definition should be returned", func() {
-				So(def, ShouldNotBeNil)
-			})
-		})
-	})
-}
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
 
-func TestNewDefinitionWithConstructorFunction(t *testing.T) {
-	Convey("Given an arbitrary type with a constructor function", t, func() {
-		Convey("When creating a definition for that type ", func() {
-			def := NewDefinition(NewBar)
-
-			Convey("Then definition should be returned", func() {
-				So(def, ShouldNotBeNil)
-			})
-		})
-	})
-}
-
-func TestAddArguments(t *testing.T) {
-	Convey("Given an arbitrary definition of an arbitrary type", t, func() {
-		type Bar struct{}
-
-		type Foo struct {
-			A   int
-			B   string
-			Bar Bar
-		}
-
-		def := NewDefinition(&Foo{})
-
-		Convey("When adding arguments to that definition ", func() {
-
-			bar := NewDefinition(&Bar{})
-			def.AddArguments(1, "string", bar)
-
-			Convey("Then definition should be created with those arguments", func() {
-				So(def, ShouldNotBeNil)
-				So(def.Arguments, ShouldHaveLength, 3)
-				So(def.Arguments, ShouldContain, bar)
-				So(def.Arguments, ShouldContain, 1)
-				So(def.Arguments, ShouldContain, "string")
+				Convey("And the definition should contain that argument", func() {
+					So(def.Arguments, ShouldHaveLength, 1)
+					So(def.Arguments[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
+				})
 			})
 		})
 	})

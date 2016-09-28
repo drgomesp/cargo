@@ -1,7 +1,28 @@
 language: go
-go:
-- 1.7
-before_script: go test -v ./... -cover
+sudo: false
+
 env:
   global:
-    secure: pObt6fTg6sfUst6hmU+voILI2U67AKp6w2/r7gfjV0v2eWYHDVgWB9PlZtbKl2XbBMp6x8A4ZvmW9mhkhqka421DIx2Ij8G+R+1sLtDvvZNR25vobfx/C0LOOwKVlXgq1B78o+VdgqUgJ7r7e2wihp6x5hTtA4WwPBThdkxT19tdHfjSZ9IR6+O/EqOnNcKXZw9FEV60q/u/xHKoi03l6wJMThBHPdwbxOf/6xi89SP2XLmTwxHs1iU5KM/UX1/d3si5u3UJOHSkA8u/VYXsB8vJnLq1XQYPIZb3iR1BsUbrsXGaAJ5Zy8nEVRnoUAPnpfzM18GpD167tr70sdmVJIMofs+mONmO4/DQ+RMDD3TXCqOoAKH9Fx8TJub7CHPhiwKcZ/3HpsWMG8Hv7nYQ8EHIHSDpdISPaOYBdba/mRdCreWYc0qsg6HYaQi1wHVuVSwYQOceD2AgtlVCFMZf2Cv/6Sp02lqDejeiitkMb7EpCMcXwwVUesrjk9R0TeKGQV6y2X6Azcarr/dmazzYZw4glQTWdYgBNHRgcih+gp+Ui9ATLX0s6425t3EeU67SctE8mwPEApaf0TfUtlSMXRG0b6Ek5PhZPyXKlF7kjqazmpLgsrS4+RR8V0NvsQu6gnwE6xRE2cguA735HLpi2MglWsuzUh5W0i4aqTNxbv0=
+  - secure: TwwZCbOWl7d28hjEgnzF93mHat9oGPTN+N+NgP0kdjkBTRtmnbiNylMY0Rhr+GNQpvjBQQchpDmM42doi5TCGOGLHbItbKqT8f6gfg5TgnWo/tFXaMxaBp2ENH/7o2Xmxl6VDhK9MISEEe3SDI9OmOFljMo5Swf0ghfEAOraC6d/oQKnBoXmnwKkTo6d16bh5o83v1y15VeRe1tpb/filphkYlqOpXLosxzQbtyYOTqlf0GuXNsv/CKMcS7Mqb5EKdRdqNavmARk+LGBwePHBCeRqZA+kE6jRN/9Kf5yfW4prKlFp8iM2RF6UyTEFjcT236Y/wbhZUUIVeqqdrvZ6u2i4yoUKL2GGqXn8rHd+CLk5C8ArzzcNODgkBuqdXXRkOC4grkO2UhjpkNKNdvhww8wInI/RZ6SpDK6+1LX4IlTVoxsG6yrfCtQsP+xhqTEh28WEK1otG8mC0LrWp/ZE5jPlLk1ag4A4PnOXjbDfSL6V2BDTk39aiXgo5qdun8PQxWeUMImQ58pZliib/nTVj/xZtX1UTzJ5kxLta5t9bj2fx7g96H2Cjr2BrY2Jnx+fTWLWwMTscEWOb6ynoWCg2DW3XK9cSq+ky63iLvaU6eTLeDoVwdfGkUhNy4VllDM26p8bnGaR7/dP+ZbEKc+M9P40md7tLim2Jn9Qu5rH+c=
+
+go:
+- 1.2
+- 1.3
+- 1.4
+- 1.5
+- 1.6
+- 1.7
+
+install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
+  - go get -v -t ./...
+
+script:
+  - go test -cover -coverpkg github.com/drgomesp/cargo/container -coverprofile container.coverprofile   ./container
+  - go test -cover -coverpkg github.com/drgomesp/cargo/definition -coverprofile definition.coverprofile ./definition
+
+after_script:
+  - gover
+  - goveralls -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
