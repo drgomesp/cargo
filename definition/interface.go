@@ -2,5 +2,6 @@ package definition
 
 // Interface providing the basic API for a definition
 type Interface interface {
-	AddArgument(arg Reference) (def *Definition, err error)
+	AddArguments(arg ...Reference) *Definition
+	AddMethodCall(method Method) *Definition
 }

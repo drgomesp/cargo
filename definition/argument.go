@@ -6,6 +6,6 @@ type Argument struct {
 }
 
 // NewArgument to be used in definitions of services
-func NewArgument(arg interface{}) Argument {
-	return Argument{arg}
+func NewArgument(arg interface{}) *Argument {
+	return &Argument{arg}
 }

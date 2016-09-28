@@ -62,6 +62,7 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 
 		if def, ok := c.definitions[id]; ok {
 			if service, err = createServiceFromDefinition(def); err == nil {
+				c.services[id] = service
 				return
 			}
 		}
@@ -85,12 +86,46 @@ func createServiceFromDefinition(def *definition.Definition) (service interface{
 			}
 
 			ret = def.Constructor.Call(args)[0]
+
+			for i, arg := range def.Arguments {
+				field := (&ret).Elem().Field(i)
+
+				if field.IsValid() && field.CanSet() {
+					field.Set(reflect.ValueOf(arg.Value))
+				}
+			}
 		} else {
-			ret = def.Constructor.Call(nil)[0]
+			ret = def.Constructor.Call(make([]reflect.Value, 0))[0]
 		}
 
-		ptr := ret.Interface()
-		service = ptr
+		if len(def.MethodCalls) > 0 {
+			for _, method := range def.MethodCalls {
+				if m, ok := ret.Type().MethodByName(method.Name); ok {
+					if m.Func.Type().NumIn() > 0 {
+						numArgs := m.Func.Type().NumIn() - 1
+
+						if len(method.Args) != numArgs {
+							err = cargo.NewError("Method \"%s\" expects arguments")
+							return
+						}
+
+						args := make([]reflect.Value, numArgs)
+
+						for i, arg := range method.Args {
+							args[i] = reflect.ValueOf(arg.Value)
+						}
+
+						args = append([]reflect.Value{ret}, args...)
+
+						m.Func.Call(args)
+					} else {
+						m.Func.Call([]reflect.Value{ret})
+					}
+				}
+			}
+		}
+
+		service = ret.Interface()
 	}
 
 	return
