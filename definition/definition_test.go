@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/drgomesp/cargo/argument"
+	"github.com/drgomesp/cargo/method"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -64,7 +66,7 @@ func TestAddArgument(t *testing.T) {
 			})
 
 			Convey("And when an argument is added to it", func() {
-				arg := NewArgument(100)
+				arg := argument.NewArgument(100)
 				def.AddArguments(arg)
 
 				Convey("Then it should return an empty error", func() {
@@ -94,7 +96,7 @@ func TestAddMethodCall(t *testing.T) {
 			})
 
 			Convey("And when a method call is added to it", func() {
-				method := NewMethod("Bar", 0, "bar")
+				method := method.NewMethod("Bar", 0, "bar")
 				def.AddMethodCall(method)
 
 				Convey("Then it should return an empty error", func() {

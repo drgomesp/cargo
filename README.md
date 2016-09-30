@@ -15,6 +15,7 @@ ___
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
+3. [Getting Started](#getting-started)
 
 ### Introduction
 
@@ -28,6 +29,38 @@ ___
 
 ```bash
 $ go get github.com/drgomesp/cargo
+```
+
+### Getting Started
+
+#### Creating/Registering Services
+
+There are two main methods used to define services in the container: `container.Register` 
+and `container.Set`. The first one assumes you already have a pointer to an object instance 
+to work with, the second needs a **definition**.
+
+Suppose you have an object:
+
+```go
+type HttpClient struct {}
+client := new(HttpClient)
+``` 
+
+To define that as a service, all you need to do is:
+
+```go
+dic := container.NewContainer()
+dic.Set("http.client", client)
+```
+
+From now on, whenever you need to work with the http client service, you can simply do:
+
+```go
+if s, err := dic.Get("http.client"); err != nil {
+    panic(err)
+}
+
+client := s.(*HttpClient) // the type assertion is required
 ```
 
 by **[Daniel Ribeiro](twitter.com/drgomesp)**
