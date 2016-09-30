@@ -176,57 +176,16 @@ func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
 	})
 }
 
-func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
-	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
-
-		Convey("And an arbitrary type with a constructor function", func() {
-			type Foo struct {
-				Number int
-				Text   string
-			}
-			NewFoo := func(number int, text string) *Foo {
-				return &Foo{number, text}
-			}
-
-			Convey("And service of that type registered as \"foo\" in the container", func() {
-				def, err := container.Register("foo", NewFoo)
-				def.AddArgument(definition.NewArgument(100)).AddArgument(definition.NewArgument("some_random_string"))
-
-				Convey("Then it should return an empty error", func() {
-					So(err, ShouldBeNil)
-				})
-
-				Convey("And it should return a definition of that service", func() {
-					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 2)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
-
-					Convey("And when requesting for that service named \"foo\" from the container", func() {
-						foo, err := container.Get("foo")
-
-						Convey("Then it should return an empty error", func() {
-							So(err, ShouldBeNil)
-						})
-
-						Convey("And it should return an instance of that service", func() {
-							So(foo, ShouldHaveSameTypeAs, NewFoo(100, "some_random_string"))
-						})
-					})
-				})
-			})
-		})
-	})
-}
-
 func TestGetServiceSetWithInstance(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
 		container := NewContainer()
 
 		Convey("And an instance of an arbitrary type", func() {
-			type Foo struct{}
-			foo := &Foo{}
+			type Foo struct {
+				A int
+				B string
+			}
+			foo := &Foo{10, "FOO"}
 
 			Convey("When that instance is registered as a service \"foo\" in the container", func() {
 				err := container.Set("foo", foo)
@@ -244,6 +203,10 @@ func TestGetServiceSetWithInstance(t *testing.T) {
 
 					Convey("And it should return a pointer to the same service", func() {
 						So(ret, ShouldPointTo, foo)
+
+						original := ret.(*Foo)
+						So(original.A, ShouldEqual, 10)
+						So(original.B, ShouldEqual, "FOO")
 					})
 				})
 			})
@@ -269,6 +232,116 @@ func TestGetServiceWithDifferentCaseCharactersForIdentifier(t *testing.T) {
 
 				Convey("And it should a pointer to the same service", func() {
 					So(ret, ShouldPointTo, foo)
+				})
+			})
+		})
+	})
+}
+
+func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("And an arbitrary type with a constructor function", func() {
+			type Foo struct {
+				Number int
+				Text   string
+			}
+
+			NewFoo := func(number int, text string) *Foo {
+				return &Foo{
+					Number: number,
+					Text:   text,
+				}
+			}
+
+			Convey("And service of that type registered as \"foo\" in the container", func() {
+				def, err := container.Register("foo", NewFoo)
+				def.AddArguments(definition.NewArgument(100), definition.NewArgument("constructor_was_called"))
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 2)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				})
+
+				Convey("And when requesting for that service named \"foo\" from the container", func() {
+					foo, err := container.Get("foo")
+
+					Convey("Then it should return an empty error", func() {
+						So(err, ShouldBeNil)
+					})
+
+					Convey("And it should return an instance of that service", func() {
+						So(foo, ShouldHaveSameTypeAs, &Foo{})
+						ret := foo.(*Foo)
+
+						So(ret.Number, ShouldEqual, 100)
+						So(ret.Text, ShouldEqual, "constructor_was_called")
+					})
+				})
+			})
+		})
+	})
+}
+
+type Foo struct {
+	Number int
+	Text   string
+}
+
+func (f *Foo) Bar(number int, text string) {
+	f.Number = number
+	f.Text = text
+}
+
+func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := NewContainer()
+
+		Convey("And an arbitrary type with a constructor function", func() {
+
+			NewFoo := func(number int, text string) *Foo {
+				return &Foo{number, text}
+			}
+
+			Convey("And service of that type registered as \"foo\" in the container", func() {
+				def, err := container.Register("foo", NewFoo)
+				def.AddArguments(definition.NewArgument(999), definition.NewArgument("constructor_was_called"))
+				def.AddMethodCall(definition.NewMethod("Bar", 5, "bar_was_called"))
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 2)
+					So(def.MethodCalls, ShouldHaveLength, 1)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				})
+
+				Convey("And when requesting for that service named \"foo\" from the container", func() {
+					foo, err := container.Get("foo")
+
+					Convey("Then it should return an empty error", func() {
+						So(err, ShouldBeNil)
+					})
+
+					Convey("And it should return an instance of that service", func() {
+						So(foo, ShouldHaveSameTypeAs, &Foo{})
+
+						ret := foo.(*Foo)
+
+						So(ret.Number, ShouldEqual, 5)
+						So(ret.Text, ShouldEqual, "bar_was_called")
+					})
 				})
 			})
 		})

@@ -8,8 +8,8 @@ import (
 
 // Definition of a service or an argument
 type Definition struct {
-	Arguments   []Argument
-	MethodCalls []reflect.Value
+	Arguments   []*Argument
+	MethodCalls []*Method
 	Constructor reflect.Value
 	Type        reflect.Type
 }
@@ -32,9 +32,15 @@ func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err e
 	return
 }
 
-// AddArgument to the definition
-func (d *Definition) AddArgument(arg Argument) *Definition {
-	d.Arguments = append(d.Arguments, arg)
+// AddArguments to the definition
+func (d *Definition) AddArguments(arg ...*Argument) *Definition {
+	d.Arguments = append(d.Arguments, arg...)
+	return d
+}
+
+// AddMethodCall to the definition
+func (d *Definition) AddMethodCall(method *Method) *Definition {
+	d.MethodCalls = append(d.MethodCalls, method)
 	return d
 }
 
@@ -43,11 +49,13 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 
 	constructor := reflect.MakeFunc(fn.Type(), func(in []reflect.Value) []reflect.Value {
 		returnType = reflect.TypeOf(fn.Interface()).Out(0)
-		return []reflect.Value{reflect.New(returnType).Elem()}
+
+		return []reflect.Value{reflect.New(returnType.Elem())}
 	})
 
 	def = &Definition{
-		Arguments:   make([]Argument, 0),
+		Arguments:   make([]*Argument, 0),
+		MethodCalls: make([]*Method, 0),
 		Constructor: constructor,
 		Type:        reflect.TypeOf(constructor.Interface()).Out(0),
 	}
@@ -57,8 +65,9 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 
 func createFromPointer(ptr interface{}, args ...interface{}) (def *Definition, err error) {
 	def = &Definition{
-		Arguments: make([]Argument, 0),
-		Type:      reflect.TypeOf(ptr),
+		Arguments:   make([]*Argument, 0),
+		MethodCalls: make([]*Method, 0),
+		Type:        reflect.TypeOf(ptr),
 	}
 
 	return

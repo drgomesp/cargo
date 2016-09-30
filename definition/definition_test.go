@@ -65,7 +65,7 @@ func TestAddArgument(t *testing.T) {
 
 			Convey("And when an argument is added to it", func() {
 				arg := NewArgument(100)
-				def.AddArgument(arg)
+				def.AddArguments(arg)
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)
@@ -74,6 +74,35 @@ func TestAddArgument(t *testing.T) {
 				Convey("And the definition should contain that argument", func() {
 					So(def.Arguments, ShouldHaveLength, 1)
 					So(def.Arguments[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
+				})
+			})
+		})
+	})
+}
+
+type Foo struct{}
+
+func (f *Foo) Bar(a int, b string) {}
+
+func TestAddMethodCall(t *testing.T) {
+	Convey("Given an arbitrary type with a member method", t, func() {
+		Convey("And a definition of that type", func() {
+			def, err := NewDefinition(&Foo{})
+
+			Convey("Then it should return an empty error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And when a method call is added to it", func() {
+				method := NewMethod("Bar", 0, "bar")
+				def.AddMethodCall(method)
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And the definition should contain that method call", func() {
+					So(def.MethodCalls, ShouldContain, method)
 				})
 			})
 		})
