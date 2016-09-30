@@ -10,9 +10,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestNewContainer(t *testing.T) {
+func TestNew(t *testing.T) {
 	Convey("Given a new container is created", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("Then a new container instance should be returned", func() {
 			So(container, ShouldHaveSameTypeAs, &Container{})
@@ -28,7 +28,7 @@ func TestRegisterAlreadyExistingDefinition(t *testing.T) {
 		}
 
 		Convey("And a service container instance", func() {
-			container := NewContainer()
+			container := New()
 
 			Convey("When the function is used to register a service on the container", func() {
 				container.Register("foo", NewFoo)
@@ -55,7 +55,7 @@ func TestRegisterWithConstructorFunction(t *testing.T) {
 		}
 
 		Convey("And a service container instance", func() {
-			container := NewContainer()
+			container := New()
 
 			Convey("When the function is used to register a service on the container", func() {
 				def, err := container.Register("foo", NewFoo)
@@ -82,7 +82,7 @@ func TestRegisterWithInstance(t *testing.T) {
 		foo := new(Foo)
 
 		Convey("And a service container instance", func() {
-			container := NewContainer()
+			container := New()
 
 			Convey("When the instance is used to register a service on the container", func() {
 				def, err := container.Register("foo", foo)
@@ -104,7 +104,7 @@ func TestRegisterWithInstance(t *testing.T) {
 
 func TestSetServiceWithInvalidType(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("When setting a service of invalid type", func() {
 			err := container.Set("foo", 1)
@@ -119,7 +119,7 @@ func TestSetServiceWithInvalidType(t *testing.T) {
 
 func TestSetServiceWithAlreadyExistingIdentifier(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an existing service \"foo\"", func() {
 			type Foo struct{}
@@ -140,7 +140,7 @@ func TestSetServiceWithAlreadyExistingIdentifier(t *testing.T) {
 
 func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an arbitrary type with a constructor function", func() {
 			type Foo struct{}
@@ -180,7 +180,7 @@ func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
 
 func TestGetServiceSetWithInstance(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an instance of an arbitrary type", func() {
 			type Foo struct {
@@ -218,7 +218,7 @@ func TestGetServiceSetWithInstance(t *testing.T) {
 
 func TestGetServiceWithDifferentCaseCharactersForIdentifier(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an existing service \"foo\"", func() {
 			type Foo struct{}
@@ -242,7 +242,7 @@ func TestGetServiceWithDifferentCaseCharactersForIdentifier(t *testing.T) {
 
 func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an arbitrary type with a constructor function", func() {
 			type Foo struct {
@@ -259,7 +259,7 @@ func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
 
 			Convey("And service of that type registered as \"foo\" in the container", func() {
 				def, err := container.Register("foo", NewFoo)
-				def.AddArguments(argument.NewArgument(100), argument.NewArgument("constructor_was_called"))
+				def.AddArguments(argument.New(100), argument.New("constructor_was_called"))
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)
@@ -304,7 +304,7 @@ func (f *Foo) Bar(number int, text string) {
 
 func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("And an arbitrary type with a constructor function", func() {
 
@@ -314,8 +314,8 @@ func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T)
 
 			Convey("And service of that type registered as \"foo\" in the container", func() {
 				def, err := container.Register("foo", NewFoo)
-				def.AddArguments(argument.NewArgument(999), argument.NewArgument("constructor_was_called"))
-				def.AddMethodCall(method.NewMethod("Bar", 5, "bar_was_called"))
+				def.AddArguments(argument.New(999), argument.New("constructor_was_called"))
+				def.AddMethodCall(method.New("Bar", 5, "bar_was_called"))
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)
@@ -350,9 +350,48 @@ func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T)
 	})
 }
 
+func TestRegisteringWithConstructorFunctionAndMethodCallsWithWrongNumberOfParameters(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := New()
+
+		Convey("And an arbitrary type with a constructor function", func() {
+
+			NewFoo := func(number int, text string) *Foo {
+				return &Foo{number, text}
+			}
+
+			Convey("And service of that type registered as \"foo\" in the container", func() {
+				def, err := container.Register("foo", NewFoo)
+				def.AddArguments(argument.New(999), argument.New("constructor_was_called"))
+				def.AddMethodCall(method.New("Bar"))
+
+				Convey("Then it should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And it should return a definition of that service", func() {
+					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
+					So(def.Arguments, ShouldHaveLength, 2)
+					So(def.MethodCalls, ShouldHaveLength, 1)
+					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				})
+
+				Convey("And when requesting for that service named \"foo\" from the container", func() {
+					_, err := container.Get("foo")
+
+					Convey("Then it should return an error", func() {
+						So(err.Error(), ShouldEqual, "Method \"Bar\" expects 2 arguments")
+					})
+				})
+			})
+		})
+	})
+}
+
 func TestGetNonExistingService(t *testing.T) {
 	Convey("Given a service container instance", t, func() {
-		container := NewContainer()
+		container := New()
 
 		Convey("When requesting for a non-existing service \"bar\"", func() {
 			_, err := container.Get("bar")

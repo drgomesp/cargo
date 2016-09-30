@@ -1,3 +1,5 @@
+<img  width="250" align="right" src="http://2.bp.blogspot.com/-4Yy4UKNvlic/UDacAxBt--I/AAAAAAAAEwU/F-IQc8NGejo/s1600/semi.png" />
+
 # drgomesp/cargo
 
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
@@ -43,6 +45,7 @@ Suppose you have an object:
 
 ```go
 type HttpClient struct {}
+
 client := new(HttpClient)
 ``` 
 

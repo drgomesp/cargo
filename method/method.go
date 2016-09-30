@@ -8,12 +8,12 @@ type Method struct {
 	Args []*argument.Argument
 }
 
-// NewMethod reference
-func NewMethod(name string, args ...interface{}) *Method {
+// New method reference
+func New(name string, args ...interface{}) *Method {
 	arguments := make([]*argument.Argument, len(args))
 
 	for i, arg := range args {
-		arguments[i] = argument.NewArgument(arg)
+		arguments[i] = argument.New(arg)
 	}
 
 	return &Method{
