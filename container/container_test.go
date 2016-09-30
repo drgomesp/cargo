@@ -4,7 +4,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/drgomesp/cargo/argument"
 	"github.com/drgomesp/cargo/definition"
+	"github.com/drgomesp/cargo/method"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -77,7 +79,7 @@ func TestRegisterWithConstructorFunction(t *testing.T) {
 func TestRegisterWithInstance(t *testing.T) {
 	Convey("Given an instance of an arbitraty type", t, func() {
 		type Foo struct{}
-		foo := &Foo{}
+		foo := new(Foo)
 
 		Convey("And a service container instance", func() {
 			container := NewContainer()
@@ -257,7 +259,7 @@ func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
 
 			Convey("And service of that type registered as \"foo\" in the container", func() {
 				def, err := container.Register("foo", NewFoo)
-				def.AddArguments(definition.NewArgument(100), definition.NewArgument("constructor_was_called"))
+				def.AddArguments(argument.NewArgument(100), argument.NewArgument("constructor_was_called"))
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)
@@ -312,8 +314,8 @@ func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T)
 
 			Convey("And service of that type registered as \"foo\" in the container", func() {
 				def, err := container.Register("foo", NewFoo)
-				def.AddArguments(definition.NewArgument(999), definition.NewArgument("constructor_was_called"))
-				def.AddMethodCall(definition.NewMethod("Bar", 5, "bar_was_called"))
+				def.AddArguments(argument.NewArgument(999), argument.NewArgument("constructor_was_called"))
+				def.AddMethodCall(method.NewMethod("Bar", 5, "bar_was_called"))
 
 				Convey("Then it should return an empty error", func() {
 					So(err, ShouldBeNil)

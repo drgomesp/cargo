@@ -1,4 +1,4 @@
-package definition
+package argument
 
 // Argument that can be passed into a service constructor
 type Argument struct {

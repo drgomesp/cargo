@@ -4,12 +4,14 @@ import (
 	"reflect"
 
 	"github.com/drgomesp/cargo"
+	"github.com/drgomesp/cargo/argument"
+	"github.com/drgomesp/cargo/method"
 )
 
 // Definition of a service or an argument
 type Definition struct {
-	Arguments   []*Argument
-	MethodCalls []*Method
+	Arguments   []*argument.Argument
+	MethodCalls []*method.Method
 	Constructor reflect.Value
 	Type        reflect.Type
 }
@@ -33,13 +35,13 @@ func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err e
 }
 
 // AddArguments to the definition
-func (d *Definition) AddArguments(arg ...*Argument) *Definition {
+func (d *Definition) AddArguments(arg ...*argument.Argument) *Definition {
 	d.Arguments = append(d.Arguments, arg...)
 	return d
 }
 
 // AddMethodCall to the definition
-func (d *Definition) AddMethodCall(method *Method) *Definition {
+func (d *Definition) AddMethodCall(method *method.Method) *Definition {
 	d.MethodCalls = append(d.MethodCalls, method)
 	return d
 }
@@ -54,8 +56,8 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 	})
 
 	def = &Definition{
-		Arguments:   make([]*Argument, 0),
-		MethodCalls: make([]*Method, 0),
+		Arguments:   make([]*argument.Argument, 0),
+		MethodCalls: make([]*method.Method, 0),
 		Constructor: constructor,
 		Type:        reflect.TypeOf(constructor.Interface()).Out(0),
 	}
@@ -65,8 +67,8 @@ func createFromConstructorFunction(fn reflect.Value) (def *Definition, err error
 
 func createFromPointer(ptr interface{}, args ...interface{}) (def *Definition, err error) {
 	def = &Definition{
-		Arguments:   make([]*Argument, 0),
-		MethodCalls: make([]*Method, 0),
+		Arguments:   make([]*argument.Argument, 0),
+		MethodCalls: make([]*method.Method, 0),
 		Type:        reflect.TypeOf(ptr),
 	}
 

@@ -1,4 +1,4 @@
-package definition
+package reference
 
 // Reference to a service
 type Reference struct {
