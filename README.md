@@ -66,7 +66,7 @@ if s, err := dic.Get("http.client"); err != nil {
 client := s.(*HttpClient) // the type assertion is required
 ```
 
-by **[Daniel Ribeiro](twitter.com/drgomesp)**
+by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 
 [license]: https://opensource.org/licenses/MIT
 [license_badge]: https://img.shields.io/badge/liecense-MIT-blue.svg 
