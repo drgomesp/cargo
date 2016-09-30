@@ -5,7 +5,7 @@ type Argument struct {
 	Value interface{}
 }
 
-// NewArgument to be used in definitions of services
-func NewArgument(arg interface{}) *Argument {
+// New argument to be used in definitions of services
+func New(arg interface{}) *Argument {
 	return &Argument{arg}
 }

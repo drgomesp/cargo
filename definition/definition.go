@@ -1,9 +1,9 @@
 package definition
 
 import (
+	"fmt"
 	"reflect"
 
-	"github.com/drgomesp/cargo"
 	"github.com/drgomesp/cargo/argument"
 	"github.com/drgomesp/cargo/method"
 )
@@ -16,10 +16,15 @@ type Definition struct {
 	Type        reflect.Type
 }
 
-// NewDefinition based on factory functions, composite ˝ or pointers
-func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err error) {
+// New definition based on factory functions or pointers
+func New(arg interface{}, args ...interface{}) (def *Definition, err error) {
 	switch reflect.TypeOf(arg).Kind() {
 	case reflect.Func:
+		if reflect.TypeOf(arg).NumOut() == 0 {
+			err = fmt.Errorf("Constructor function must have a return type")
+			return
+		}
+
 		if constructor, err := createFromConstructorFunction(reflect.ValueOf(arg)); nil == err {
 			def = constructor
 		}
@@ -28,7 +33,7 @@ func NewDefinition(arg interface{}, args ...interface{}) (def *Definition, err e
 			def = constructor
 		}
 	default:
-		err = cargo.NewError("Could not create definition")
+		err = fmt.Errorf("A definition must be created from a pointer to a struct or a constructor function")
 	}
 
 	return

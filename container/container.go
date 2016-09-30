@@ -14,8 +14,8 @@ type Container struct {
 	services    map[string]interface{}
 }
 
-// NewContainer instance
-func NewContainer() *Container {
+// New continer instance
+func New() *Container {
 	return &Container{
 		definitions: make(map[string]*definition.Definition, 0),
 		services:    make(map[string]interface{}, 0),
@@ -29,7 +29,7 @@ func (c *Container) Register(id string, arg interface{}) (def *definition.Defini
 		return
 	}
 
-	def, err = definition.NewDefinition(arg)
+	def, err = definition.New(arg)
 	c.definitions[id] = def
 
 	return
@@ -42,7 +42,7 @@ func (c *Container) Set(id string, arg interface{}) (err error) {
 		return
 	}
 
-	if c.definitions[id], err = definition.NewDefinition(arg); err != nil {
+	if c.definitions[id], err = definition.New(arg); err != nil {
 		err = fmt.Errorf("Could not create definition")
 		return
 	}
@@ -60,10 +60,14 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		}
 
 		if def, ok := c.definitions[id]; ok {
-			if service, err = createService(def); err == nil {
-				c.services[id] = service
+			service, err = createService(def)
+
+			if err != nil {
 				return
 			}
+
+			c.services[id] = service
+			return
 		}
 
 		id = strings.ToLower(id)
@@ -74,19 +78,12 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 }
 
 func createService(def *definition.Definition) (service interface{}, err error) {
-	if !def.Constructor.IsValid() {
-		err = fmt.Errorf("Constructor is not valid")
-		return
-	}
-
-	obj, err := callConstructor(def)
-
-	if err != nil {
-		return nil, err
-	}
+	obj, _ := callConstructor(def)
 
 	if len(def.MethodCalls) > 0 {
-		callMethods(def, &obj)
+		if err = callMethods(def, &obj); err != nil {
+			return
+		}
 	}
 
 	return obj.Interface(), nil
@@ -123,7 +120,7 @@ func callMethods(def *definition.Definition, obj *reflect.Value) (err error) {
 				numArgs := m.Func.Type().NumIn() - 1
 
 				if len(method.Args) != numArgs {
-					err = fmt.Errorf("Method \"%s\" expects arguments", method.Name)
+					err = fmt.Errorf("Method \"%s\" expects %d arguments", method.Name, numArgs)
 					return
 				}
 
@@ -137,7 +134,7 @@ func callMethods(def *definition.Definition, obj *reflect.Value) (err error) {
 
 				m.Func.Call(args)
 			} else {
-				m.Func.Call([]reflect.Value{*obj})
+				m.Func.Call(nil)
 			}
 		}
 	}
