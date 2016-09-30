@@ -2,10 +2,12 @@
 
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
 
-[![License](https://img.shields.io/badge/liecense-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![GoDoc](https://godoc.org/github.com/drgomesp/cargo?status.svg)](https://godoc.org/github.com/drgomesp/cargo) [![Current Project](https://img.shields.io/badge/target%20release-0.1.0-ff69cc.svg)](https://github.com/drgomesp/cargo/projects/1)
- [![Go Report Card](https://goreportcard.com/badge/github.com/drgomesp/cargo)](https://goreportcard.com/report/github.com/drgomesp/cargo) [![Build Status](https://travis-ci.org/drgomesp/cargo.svg?branch=develop)](https://travis-ci.org/drgomesp/cargo) 
-[![Coverage Status](https://coveralls.io/repos/github/drgomesp/cargo/badge.svg?branch=develop)](https://coveralls.io/github/drgomesp/cargo?branch=develop)
- 
+[![License][license_badge]][license] 
+[![GoDoc][docs_badge]][docs] 
+[![Latest Release][release_badge]][release]
+[![Go Report][report_badge]][report] 
+[![Build Status][build_badge]][build] 
+[![Coverage Status][coverage_badge]][coverage]
 
 ___
 
@@ -29,3 +31,16 @@ $ go get github.com/drgomesp/cargo
 ```
 
 by **[Daniel Ribeiro](twitter.com/drgomesp)**
+
+[license]: https://opensource.org/licenses/MIT
+[license_badge]: https://img.shields.io/badge/liecense-MIT-blue.svg 
+[docs]: https://godoc.org/github.com/drgomesp/cargo
+[docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg
+[release]: https://github.com/drgomesp/cargo/releases
+[release_badge]: https://img.shields.io/github/release/drgomesp/cargo.svg
+[report]: https://goreportcard.com/report/github.com/drgomesp/cargo
+[report_badge]: https://goreportcard.com/badge/github.com/drgomesp/cargo
+[build]: https://travis-ci.org/drgomesp/cargo
+[build_badge]: https://travis-ci.org/drgomesp/cargo.svg?branch=develop
+[coverage]: https://coveralls.io/github/drgomesp/cargo?branch=develop
+[coverage_badge]: https://coveralls.io/repos/github/drgomesp/cargo/badge.svg?branch=develop
