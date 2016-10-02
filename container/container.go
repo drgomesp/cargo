@@ -10,22 +10,22 @@ import (
 
 // Container for dependency injection
 type Container struct {
-	definitions map[string]*definition.Definition
+	definitions map[string]definition.Interface
 	services    map[string]interface{}
 }
 
 // New continer instance
 func New() *Container {
 	return &Container{
-		definitions: make(map[string]*definition.Definition, 0),
+		definitions: make(map[string]definition.Interface, 0),
 		services:    make(map[string]interface{}, 0),
 	}
 }
 
 // Register a new service definition
-func (c *Container) Register(id string, arg interface{}) (def *definition.Definition, err error) {
+func (c *Container) Register(id string, arg interface{}) (def definition.Interface, err error) {
 	if _, ok := c.definitions[id]; ok {
-		err = fmt.Errorf("Definition for \"%s\" already exists", id)
+		err = fmt.Errorf(`Definition for "%s" already exists`, id)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (c *Container) Register(id string, arg interface{}) (def *definition.Defini
 // Set a new service
 func (c *Container) Set(id string, arg interface{}) (err error) {
 	if _, ok := c.definitions[id]; ok {
-		err = fmt.Errorf("Definition for \"%s\" already exists", id)
+		err = fmt.Errorf(`Definition for "%s" already exists`, id)
 		return
 	}
 
@@ -73,14 +73,14 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		id = strings.ToLower(id)
 	}
 
-	err = fmt.Errorf("No service \"%s\" was found", id)
+	err = fmt.Errorf(`No service "%s" was found`, id)
 	return
 }
 
-func createService(def *definition.Definition) (service interface{}, err error) {
+func createService(def definition.Interface) (service interface{}, err error) {
 	obj, _ := callConstructor(def)
 
-	if len(def.MethodCalls) > 0 {
+	if len(def.MethodCalls()) > 0 {
 		if err = callMethods(def, &obj); err != nil {
 			return
 		}
@@ -89,17 +89,17 @@ func createService(def *definition.Definition) (service interface{}, err error) 
 	return obj.Interface(), nil
 }
 
-func callConstructor(def *definition.Definition) (obj reflect.Value, err error) {
-	if len(def.Arguments) > 0 {
-		args := make([]reflect.Value, len(def.Arguments))
+func callConstructor(def definition.Interface) (obj reflect.Value, err error) {
+	if len(def.Arguments()) > 0 {
+		args := make([]reflect.Value, len(def.Arguments()))
 
-		for i, arg := range def.Arguments {
+		for i, arg := range def.Arguments() {
 			args[i] = reflect.ValueOf(arg.Value)
 		}
 
-		obj = def.Constructor.Call(args)[0]
+		obj = def.Constructor().Call(args)[0]
 
-		for i, arg := range def.Arguments {
+		for i, arg := range def.Arguments() {
 			field := (obj).Elem().Field(i)
 
 			if field.IsValid() && field.CanSet() {
@@ -107,20 +107,20 @@ func callConstructor(def *definition.Definition) (obj reflect.Value, err error) 
 			}
 		}
 	} else {
-		obj = def.Constructor.Call(make([]reflect.Value, 0))[0]
+		obj = def.Constructor().Call(make([]reflect.Value, 0))[0]
 	}
 
 	return obj, nil
 }
 
-func callMethods(def *definition.Definition, obj *reflect.Value) (err error) {
-	for _, method := range def.MethodCalls {
+func callMethods(def definition.Interface, obj *reflect.Value) (err error) {
+	for _, method := range def.MethodCalls() {
 		if m, ok := obj.Type().MethodByName(method.Name); ok {
 			if m.Func.Type().NumIn() > 0 {
 				numArgs := m.Func.Type().NumIn() - 1
 
 				if len(method.Args) != numArgs {
-					err = fmt.Errorf("Method \"%s\" expects %d arguments", method.Name, numArgs)
+					err = fmt.Errorf(`Method "%s" expects %d arguments`, method.Name, numArgs)
 					return
 				}
 

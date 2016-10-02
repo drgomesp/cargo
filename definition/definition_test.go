@@ -45,10 +45,11 @@ func TestNewWithConstructorFunction(t *testing.T) {
 			})
 
 			Convey("And the definition should represent the correct type", func() {
+				def := def.(*Definition)
 				So(def, ShouldHaveSameTypeAs, &Definition{})
-				So(def.Arguments, ShouldHaveLength, 0)
-				So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-				So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				So(def.Arguments(), ShouldHaveLength, 0)
+				So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+				So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 			})
 		})
 	})
@@ -67,10 +68,11 @@ func TestNewWithInstance(t *testing.T) {
 			})
 
 			Convey("And it should return a definition that represents the correct type", func() {
+				def := def.(*Definition)
 				So(def, ShouldHaveSameTypeAs, &Definition{})
-				So(def.Arguments, ShouldHaveLength, 0)
-				So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-				So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+				So(def.Arguments(), ShouldHaveLength, 0)
+				So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+				So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 			})
 		})
 	})
@@ -96,8 +98,9 @@ func TestAddArgument(t *testing.T) {
 				})
 
 				Convey("And the definition should contain that argument", func() {
-					So(def.Arguments, ShouldHaveLength, 1)
-					So(def.Arguments[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
+					def := def.(*Definition)
+					So(def.Arguments(), ShouldHaveLength, 1)
+					So(def.Arguments()[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
 				})
 			})
 		})
@@ -126,7 +129,8 @@ func TestAddMethodCall(t *testing.T) {
 				})
 
 				Convey("And the definition should contain that method call", func() {
-					So(def.MethodCalls, ShouldContain, method)
+					def := def.(*Definition)
+					So(def.MethodCalls(), ShouldContain, method)
 				})
 			})
 		})

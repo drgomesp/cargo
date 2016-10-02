@@ -66,9 +66,9 @@ func TestRegisterWithConstructorFunction(t *testing.T) {
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 0)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 0)
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 				})
 			})
 
@@ -93,9 +93,9 @@ func TestRegisterWithInstance(t *testing.T) {
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 0)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 0)
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 				})
 			})
 		})
@@ -157,9 +157,9 @@ func TestGetServiceRegisteredWithConstructorFunction(t *testing.T) {
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 0)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 0)
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 
 					Convey("And when requesting for that service named \"foo\" from the container", func() {
 						foo, err := container.Get("foo")
@@ -267,9 +267,9 @@ func TestGetServiceRegisteredWithConstructorFunctionAndArguments(t *testing.T) {
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 2)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 2)
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 				})
 
 				Convey("And when requesting for that service named \"foo\" from the container", func() {
@@ -323,10 +323,10 @@ func TestGetServiceRegisteredWithConstructorFunctionAndMethodCalls(t *testing.T)
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 2)
-					So(def.MethodCalls, ShouldHaveLength, 1)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 2)
+					So(def.MethodCalls(), ShouldHaveLength, 1)
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
 				})
 
 				Convey("And when requesting for that service named \"foo\" from the container", func() {
@@ -360,7 +360,7 @@ func TestRegisteringWithConstructorFunctionAndMethodCallsWithWrongNumberOfParame
 				return &Foo{number, text}
 			}
 
-			Convey("And service of that type registered as \"foo\" in the container", func() {
+			Convey(`And service of that type registered as "foo" in the container`, func() {
 				def, err := container.Register("foo", NewFoo)
 				def.AddArguments(argument.New(999), argument.New("constructor_was_called"))
 				def.AddMethodCall(method.New("Bar"))
@@ -371,17 +371,17 @@ func TestRegisteringWithConstructorFunctionAndMethodCallsWithWrongNumberOfParame
 
 				Convey("And it should return a definition of that service", func() {
 					So(def, ShouldHaveSameTypeAs, &definition.Definition{})
-					So(def.Arguments, ShouldHaveLength, 2)
-					So(def.MethodCalls, ShouldHaveLength, 1)
-					So(def.Type, ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
-					So(def.Constructor, ShouldHaveSameTypeAs, reflect.Value{})
+					So(def.Arguments(), ShouldHaveLength, 2)
+					So(def.MethodCalls(), ShouldHaveLength, 1)
+					So(def.Type(), ShouldHaveSameTypeAs, reflect.TypeOf(&Foo{}))
+					So(def.Constructor(), ShouldHaveSameTypeAs, reflect.Value{})
 				})
 
-				Convey("And when requesting for that service named \"foo\" from the container", func() {
+				Convey(`And when requesting for that service named "foo" from the container`, func() {
 					_, err := container.Get("foo")
 
 					Convey("Then it should return an error", func() {
-						So(err.Error(), ShouldEqual, "Method \"Bar\" expects 2 arguments")
+						So(err.Error(), ShouldEqual, `Method "Bar" expects 2 arguments`)
 					})
 				})
 			})
@@ -398,7 +398,7 @@ func TestGetNonExistingService(t *testing.T) {
 
 			Convey("Then it should return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, "No service \"bar\" was found")
+				So(err.Error(), ShouldEqual, `No service "bar" was found`)
 			})
 		})
 	})
