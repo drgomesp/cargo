@@ -2,10 +2,23 @@ package reference
 
 // Reference to a service
 type Reference struct {
-	Identifier string
+	value      interface{}
+	identifier string
 }
 
-// NewReference of a service
-func NewReference(id string) Reference {
-	return Reference{id}
+// Value carried by the argument
+func (r *Reference) Value() interface{} {
+	return r.value
+}
+
+// Identifier of the referenced service
+func (r *Reference) Identifier() string {
+	return r.identifier
+}
+
+// New reference of a service
+func New(id string) Reference {
+	return Reference{
+		identifier: id,
+	}
 }

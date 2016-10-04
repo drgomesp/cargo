@@ -7,6 +7,7 @@ import (
 	"github.com/drgomesp/cargo/argument"
 	"github.com/drgomesp/cargo/definition"
 	"github.com/drgomesp/cargo/method"
+	"github.com/drgomesp/cargo/reference"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -383,6 +384,40 @@ func TestRegisteringWithConstructorFunctionAndMethodCallsWithWrongNumberOfParame
 					Convey("Then it should return an error", func() {
 						So(err.Error(), ShouldEqual, `Method "Bar" expects 2 arguments`)
 					})
+				})
+			})
+		})
+	})
+}
+
+func TestRegisteringWithReferenceToExistingService(t *testing.T) {
+	Convey(`Given a service container instance with some existing "foo" service`, t, func() {
+		container := New()
+		foo := &Foo{123, "existing_service"}
+		container.Set("foo", foo)
+
+		Convey("When registering a service definition that references an existing service as an argument", func() {
+			type Bar struct {
+				FooService *Foo
+			}
+
+			newBar := func(fooService *Foo) *Bar {
+				return &Bar{fooService}
+			}
+
+			def, _ := container.Register("bar", newBar)
+			ref := reference.New("foo")
+			def.AddArguments(&ref)
+
+			Convey("When requesting for that service", func() {
+				bar, err := container.Get("bar")
+
+				Convey("Then there should be no error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey(`And a new "bar" service should be created with "foo" injected through the constructor`, func() {
+					So(bar.(*Bar).FooService, ShouldEqual, foo)
 				})
 			})
 		})

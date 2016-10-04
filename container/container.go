@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/drgomesp/cargo/definition"
+	"github.com/drgomesp/cargo/reference"
 )
 
 // Container for dependency injection
@@ -60,7 +61,7 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		}
 
 		if def, ok := c.definitions[id]; ok {
-			service, err = createService(def)
+			service, err = c.createService(def)
 
 			if err != nil {
 				return
@@ -77,8 +78,8 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 	return
 }
 
-func createService(def definition.Interface) (service interface{}, err error) {
-	obj, _ := callConstructor(def)
+func (c *Container) createService(def definition.Interface) (service interface{}, err error) {
+	obj, _ := c.callConstructor(def)
 
 	if len(def.MethodCalls()) > 0 {
 		if err = callMethods(def, &obj); err != nil {
@@ -89,21 +90,32 @@ func createService(def definition.Interface) (service interface{}, err error) {
 	return obj.Interface(), nil
 }
 
-func callConstructor(def definition.Interface) (obj reflect.Value, err error) {
+func (c *Container) callConstructor(def definition.Interface) (obj reflect.Value, err error) {
 	if len(def.Arguments()) > 0 {
 		args := make([]reflect.Value, len(def.Arguments()))
 
 		for i, arg := range def.Arguments() {
-			args[i] = reflect.ValueOf(arg.Value)
+			if reference, ok := arg.(reference.Interface); ok {
+				var found interface{}
+				found, err = c.Get(reference.Identifier())
+
+				if err != nil {
+					return
+				}
+
+				args[i] = reflect.ValueOf(found)
+			} else {
+				args[i] = reflect.ValueOf(arg.Value())
+			}
 		}
 
 		obj = def.Constructor().Call(args)[0]
 
-		for i, arg := range def.Arguments() {
-			field := (obj).Elem().Field(i)
+		for i, arg := range args {
+			field := obj.Elem().Field(i)
 
 			if field.IsValid() && field.CanSet() {
-				field.Set(reflect.ValueOf(arg.Value))
+				field.Set(arg)
 			}
 		}
 	} else {
@@ -127,7 +139,7 @@ func callMethods(def definition.Interface, obj *reflect.Value) (err error) {
 				args := make([]reflect.Value, numArgs)
 
 				for i, arg := range method.Args {
-					args[i] = reflect.ValueOf(arg.Value)
+					args[i] = reflect.ValueOf(arg.Value())
 				}
 
 				args = append([]reflect.Value{*obj}, args...)
