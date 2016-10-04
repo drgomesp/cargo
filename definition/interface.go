@@ -9,10 +9,10 @@ import (
 
 // Interface providing the basic API for a definition
 type Interface interface {
-	AddArguments(arg ...*argument.Argument) Interface
+	AddArguments(arg ...argument.Interface) Interface
 	AddMethodCall(method *method.Method) Interface
 
-	Arguments() []*argument.Argument
+	Arguments() []argument.Interface
 	MethodCalls() []*method.Method
 	Constructor() reflect.Value
 	Type() reflect.Type

@@ -100,7 +100,8 @@ func TestAddArgument(t *testing.T) {
 				Convey("And the definition should contain that argument", func() {
 					def := def.(*Definition)
 					So(def.Arguments(), ShouldHaveLength, 1)
-					So(def.Arguments()[0].Value, ShouldEqual, reflect.ValueOf(arg.Value).Interface())
+					first := def.Arguments()[0].(*argument.Argument)
+					So(first.Value(), ShouldEqual, reflect.ValueOf(arg.Value()).Interface())
 				})
 			})
 		})
