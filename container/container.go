@@ -78,6 +78,15 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 	return
 }
 
+// MustGet gets a service or panics
+func (c *Container) MustGet(id string) (service interface{}) {
+	if service, err := c.Get(id); err != nil {
+		panic(err)
+	} else {
+		return service
+	}
+}
+
 func (c *Container) createService(def definition.Interface) (service interface{}, err error) {
 	obj, _ := c.callConstructor(def)
 
