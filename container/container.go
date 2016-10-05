@@ -78,8 +78,8 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 	return
 }
 
-// MustGet gets a service or panics
-func (c *Container) MustGet(id string) (service interface{}) {
+// MustGet is a wrapper for Get that panics if service was not found
+func (c *Container) MustGet(id string) interface{} {
 	if service, err := c.Get(id); err != nil {
 		panic(err)
 	} else {
