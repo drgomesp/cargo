@@ -438,3 +438,52 @@ func TestGetNonExistingService(t *testing.T) {
 		})
 	})
 }
+
+func TestMustGetServiceSetWithInstance(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := New()
+
+		Convey("And an instance of an arbitrary type", func() {
+			type Foo struct {
+				A int
+				B string
+			}
+			foo := &Foo{10, "FOO"}
+
+			Convey("When that instance is registered as a service \"foo\" in the container", func() {
+				err := container.Set("foo", foo)
+
+				Convey("Then the container should return an empty error", func() {
+					So(err, ShouldBeNil)
+				})
+
+				Convey("And when requesting as a must for that service named \"foo\" from the container", func() {
+					So(func() {
+						container.MustGet("foo")
+					}, ShouldNotPanic)
+
+					ret := container.MustGet("foo")
+					Convey("And it should return a pointer to the same service", func() {
+						So(ret, ShouldPointTo, foo)
+
+						original := ret.(*Foo)
+						So(original.A, ShouldEqual, 10)
+						So(original.B, ShouldEqual, "FOO")
+					})
+				})
+			})
+		})
+	})
+}
+
+func TestMustGetNonExistingService(t *testing.T) {
+	Convey("Given a service container instance", t, func() {
+		container := New()
+
+		Convey("When requesting for a non-existing service \"bar\"", func() {
+			So(func() {
+				container.MustGet("bar")
+			}, ShouldPanic)
+		})
+	})
+}

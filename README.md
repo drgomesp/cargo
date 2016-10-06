@@ -4,11 +4,11 @@
 
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
 
-[![License][license_badge]][license] 
-[![GoDoc][docs_badge]][docs] 
+[![License][license_badge]][license]
+[![GoDoc][docs_badge]][docs]
 [![Latest Release][release_badge]][release]
-[![Go Report][report_badge]][report] 
-[![Build Status][build_badge]][build] 
+[![Go Report][report_badge]][report]
+[![Build Status][build_badge]][build]
 [![Coverage Status][coverage_badge]][coverage]
 
 ___
@@ -21,10 +21,10 @@ ___
 
 ### Introduction
 
-**cargo** is a library that provides a powerful way of handling objects and 
+**cargo** is a library that provides a powerful way of handling objects and
  their dependencies, by using the *Container*. The container works
- by implementing the [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) 
- pattern via constructor injection, resulting in explicit dependencies and the achievement 
+ by implementing the [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection)
+ pattern via constructor injection, resulting in explicit dependencies and the achievement
  of the [Inversion of Control](https://en.wikipedia.org/wiki/Inversion_of_control) principle.
 
 ### Installation
@@ -37,8 +37,8 @@ $ go get github.com/drgomesp/cargo
 
 #### Creating/Registering Services
 
-There are two main methods used to define services in the container: `container.Register` 
-and `container.Set`. The first one assumes you already have a pointer to an object instance 
+There are two main methods used to define services in the container: `container.Register`
+and `container.Set`. The first one assumes you already have a pointer to an object instance
 to work with, the second needs a **definition**.
 
 Suppose you have an object:
@@ -47,7 +47,7 @@ Suppose you have an object:
 type HttpClient struct {}
 
 client := new(HttpClient)
-``` 
+```
 
 To define that as a service, all you need to do is:
 
@@ -66,10 +66,16 @@ if s, err := dic.Get("http.client"); err != nil {
 client := s.(*HttpClient) // the type assertion is required
 ```
 
+Or, if you do not need errors handling and panic is fine, you can get the same behavior with short synthax:
+
+```go
+client := dic.MustGet("http.client").(*HttpClient)
+```
+
 by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 
 [license]: https://opensource.org/licenses/MIT
-[license_badge]: https://img.shields.io/badge/liecense-MIT-blue.svg 
+[license_badge]: https://img.shields.io/badge/liecense-MIT-blue.svg
 [docs]: https://godoc.org/github.com/drgomesp/cargo
 [docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg
 [release]: https://github.com/drgomesp/cargo/releases
