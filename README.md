@@ -75,7 +75,7 @@ client := dic.MustGet("http.client").(*HttpClient)
 by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 
 [license]: https://opensource.org/licenses/MIT
-[license_badge]: https://img.shields.io/badge/liecense-MIT-blue.svg
+[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [docs]: https://godoc.org/github.com/drgomesp/cargo
 [docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg
 [release]: https://github.com/drgomesp/cargo/releases
