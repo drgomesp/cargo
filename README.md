@@ -87,7 +87,7 @@ by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 [report_badge]: https://goreportcard.com/badge/github.com/drgomesp/cargo?style=flat-square
 
 [build]: https://travis-ci.org/drgomesp/cargo
-[build_badge]: https://travis-ci.org/drgomesp/cargo.svg?branch=develop?style=flat-square
+[build_badge]: https://img.shields.io/travis/drgomesp/cargo.svg?style=flat-square
 
 [coverage]: https://coveralls.io/github/drgomesp/cargo?branch=develop
-[coverage_badge]: https://coveralls.io/repos/github/drgomesp/cargo/badge.svg?branch=develop?style=flat-square
+[coverage_badge]: https://img.shields.io/coveralls/drgomesp/cargo.svg?style=flat-square
