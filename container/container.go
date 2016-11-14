@@ -5,32 +5,32 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/drgomesp/cargo"
 	"github.com/drgomesp/cargo/definition"
+	"github.com/drgomesp/cargo/reference"
 )
 
 // Container for dependency injection
 type Container struct {
-	definitions map[string]*definition.Definition
+	definitions map[string]definition.Interface
 	services    map[string]interface{}
 }
 
-// NewContainer instance
-func NewContainer() *Container {
+// New continer instance
+func New() *Container {
 	return &Container{
-		definitions: make(map[string]*definition.Definition, 0),
+		definitions: make(map[string]definition.Interface, 0),
 		services:    make(map[string]interface{}, 0),
 	}
 }
 
 // Register a new service definition
-func (c *Container) Register(id string, arg interface{}) (def *definition.Definition, err error) {
+func (c *Container) Register(id string, arg interface{}) (def definition.Interface, err error) {
 	if _, ok := c.definitions[id]; ok {
-		err = cargo.NewError(fmt.Sprintf("Definition for \"%s\" already exists", id))
+		err = fmt.Errorf(`Definition for "%s" already exists`, id)
 		return
 	}
 
-	def, err = definition.NewDefinition(arg)
+	def, err = definition.New(arg)
 	c.definitions[id] = def
 
 	return
@@ -39,16 +39,16 @@ func (c *Container) Register(id string, arg interface{}) (def *definition.Defini
 // Set a new service
 func (c *Container) Set(id string, arg interface{}) (err error) {
 	if _, ok := c.definitions[id]; ok {
-		err = cargo.NewError(fmt.Sprintf("Definition for \"%s\" already exists", id))
+		err = fmt.Errorf(`Definition for "%s" already exists`, id)
 		return
 	}
 
-	if c.definitions[id], err = definition.NewDefinition(arg); err != nil {
-		err = cargo.NewError("Could not create definition")
+	if c.definitions[id], err = definition.New(arg); err != nil {
+		err = fmt.Errorf("Could not create definition")
+		return
 	}
 
 	c.services[id] = arg
-
 	return
 }
 
@@ -61,71 +61,103 @@ func (c *Container) Get(id string) (service interface{}, err error) {
 		}
 
 		if def, ok := c.definitions[id]; ok {
-			if service, err = createServiceFromDefinition(def); err == nil {
-				c.services[id] = service
+			service, err = c.createService(def)
+
+			if err != nil {
 				return
 			}
+
+			c.services[id] = service
+			return
 		}
 
 		id = strings.ToLower(id)
 	}
 
-	err = cargo.NewError(fmt.Sprintf("No service \"%s\" was found", id))
+	err = fmt.Errorf(`No service "%s" was found`, id)
 	return
 }
 
-func createServiceFromDefinition(def *definition.Definition) (service interface{}, err error) {
-	var ret reflect.Value
+// MustGet is a wrapper for Get that panics if service was not found
+func (c *Container) MustGet(id string) interface{} {
+	if service, err := c.Get(id); err != nil {
+		panic(err)
+	} else {
+		return service
+	}
+}
 
-	if def.Constructor.IsValid() {
-		if len(def.Arguments) > 0 {
-			args := make([]reflect.Value, len(def.Arguments))
+func (c *Container) createService(def definition.Interface) (service interface{}, err error) {
+	obj, _ := c.callConstructor(def)
 
-			for i, arg := range def.Arguments {
-				args[i] = reflect.ValueOf(arg.Value)
-			}
-
-			ret = def.Constructor.Call(args)[0]
-
-			for i, arg := range def.Arguments {
-				field := (&ret).Elem().Field(i)
-
-				if field.IsValid() && field.CanSet() {
-					field.Set(reflect.ValueOf(arg.Value))
-				}
-			}
-		} else {
-			ret = def.Constructor.Call(make([]reflect.Value, 0))[0]
+	if len(def.MethodCalls()) > 0 {
+		if err = callMethods(def, &obj); err != nil {
+			return
 		}
+	}
 
-		if len(def.MethodCalls) > 0 {
-			for _, method := range def.MethodCalls {
-				if m, ok := ret.Type().MethodByName(method.Name); ok {
-					if m.Func.Type().NumIn() > 0 {
-						numArgs := m.Func.Type().NumIn() - 1
+	return obj.Interface(), nil
+}
 
-						if len(method.Args) != numArgs {
-							err = cargo.NewError("Method \"%s\" expects arguments")
-							return
-						}
+func (c *Container) callConstructor(def definition.Interface) (obj reflect.Value, err error) {
+	if len(def.Arguments()) > 0 {
+		args := make([]reflect.Value, len(def.Arguments()))
 
-						args := make([]reflect.Value, numArgs)
+		for i, arg := range def.Arguments() {
+			if reference, ok := arg.(reference.Interface); ok {
+				var found interface{}
+				found, err = c.Get(reference.Identifier())
 
-						for i, arg := range method.Args {
-							args[i] = reflect.ValueOf(arg.Value)
-						}
-
-						args = append([]reflect.Value{ret}, args...)
-
-						m.Func.Call(args)
-					} else {
-						m.Func.Call([]reflect.Value{ret})
-					}
+				if err != nil {
+					return
 				}
+
+				args[i] = reflect.ValueOf(found)
+			} else {
+				args[i] = reflect.ValueOf(arg.Value())
 			}
 		}
 
-		service = ret.Interface()
+		obj = def.Constructor().Call(args)[0]
+
+		for i, arg := range args {
+			field := obj.Elem().Field(i)
+
+			if field.IsValid() && field.CanSet() {
+				field.Set(arg)
+			}
+		}
+	} else {
+		obj = def.Constructor().Call(make([]reflect.Value, 0))[0]
+	}
+
+	return obj, nil
+}
+
+func callMethods(def definition.Interface, obj *reflect.Value) (err error) {
+	for _, method := range def.MethodCalls() {
+		if m, ok := obj.Type().MethodByName(method.Name); ok {
+			if m.Func.Type().NumIn() > 0 {
+				numArgs := m.Func.Type().NumIn() - 1
+
+				if len(method.Args) != numArgs {
+					err = fmt.Errorf(`Method "%s" expects %d arguments`, method.Name, numArgs)
+					return
+				}
+
+				args := make([]reflect.Value, numArgs)
+
+				for i, arg := range method.Args {
+					args[i] = reflect.ValueOf(arg.Value())
+				}
+
+				args = append([]reflect.Value{*obj}, args...)
+
+				m.Func.Call(args)
+			} else {
+				m.Func.Call(nil)
+			}
+		}
 	}
 
 	return

@@ -1,4 +1,4 @@
-package definition
+package reference
 
 import (
 	"testing"
@@ -8,10 +8,10 @@ import (
 
 func TestNewReference(t *testing.T) {
 	Convey("Given a reference is created with a string identifier", t, func() {
-		ref := NewReference("foo")
+		ref := New("foo")
 		Convey("Then it should return reference with that identifier", func() {
 			So(ref, ShouldHaveSameTypeAs, Reference{})
-			So(ref.Identifier, ShouldEqual, "foo")
+			So(ref.Identifier(), ShouldEqual, "foo")
 		})
 	})
 }
