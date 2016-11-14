@@ -75,14 +75,19 @@ client := dic.MustGet("http.client").(*HttpClient)
 by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 
 [license]: https://opensource.org/licenses/MIT
-[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
+
 [docs]: https://godoc.org/github.com/drgomesp/cargo
-[docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg
+[docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg?style=flat-square
+
 [release]: https://github.com/drgomesp/cargo/releases
-[release_badge]: https://img.shields.io/github/release/drgomesp/cargo.svg
+[release_badge]: https://img.shields.io/github/release/drgomesp/cargo.svg?style=flat-square
+
 [report]: https://goreportcard.com/report/github.com/drgomesp/cargo
-[report_badge]: https://goreportcard.com/badge/github.com/drgomesp/cargo
+[report_badge]: https://goreportcard.com/badge/github.com/drgomesp/cargo?style=flat-square
+
 [build]: https://travis-ci.org/drgomesp/cargo
-[build_badge]: https://travis-ci.org/drgomesp/cargo.svg?branch=develop
+[build_badge]: https://travis-ci.org/drgomesp/cargo.svg?branch=develop?style=flat-square
+
 [coverage]: https://coveralls.io/github/drgomesp/cargo?branch=develop
-[coverage_badge]: https://coveralls.io/repos/github/drgomesp/cargo/badge.svg?branch=develop
+[coverage_badge]: https://coveralls.io/repos/github/drgomesp/cargo/badge.svg?branch=develop?style=flat-square
