@@ -78,7 +78,7 @@ by **[Daniel Ribeiro](https://twitter.com/drgomesp)**
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 
 [docs]: https://godoc.org/github.com/drgomesp/cargo
-[docs_badge]: https://godoc.org/github.com/drgomesp/cargo?status.svg?style=flat-square
+[docs_badge]: https://img.shields.io/badge/godoc-reference-9891ff.svg?style=flat-square
 
 [release]: https://github.com/drgomesp/cargo/releases
 [release_badge]: https://img.shields.io/github/release/drgomesp/cargo.svg?style=flat-square
