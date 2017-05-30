@@ -2,6 +2,8 @@
 
 # drgomesp/cargo
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/51e13105bd8344d99162523d6bf14fc9)](https://www.codacy.com/app/drgomesp/cargo?utm_source=github.com&utm_medium=referral&utm_content=drgomesp/cargo&utm_campaign=badger)
+
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
 
 [![License][license_badge]][license]
