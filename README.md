@@ -1,5 +1,7 @@
 <img  width="250" align="right" src="http://2.bp.blogspot.com/-4Yy4UKNvlic/UDacAxBt--I/AAAAAAAAEwU/F-IQc8NGejo/s1600/semi.png" />
 
+> **DEPRECATION NOTICE**: For a better, production-ready compile-time dependency injection library, use https://github.com/google/wire.
+
 # drgomesp/cargo
 
 > *An efficient and robust Go dependency injection container* – by **[Daniel Ribeiro](https://github.com/drgomesp)**
